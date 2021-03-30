@@ -14,7 +14,7 @@ ______
 </div>
 
 
-## Introduction
+## 1. Introduction
 
 Accurately predicting the dynamics and physical characteristics of objects from image sequences is a long-standing challenge in computer vision.
 This end-to-end reasoning task requires a fundamental understanding of *both* the underlying scene dynamics and the imaging process. Imagine watching a short video of a basketball bouncing off the ground and ask: "*Can we infer the mass and elasticity of the ball, predict its trajectory, and make informed decisions, e.g., how to pass and shoot?*" These seemingly simple questions are extremely challenging to answer even for modern computer vision models. The underlying physical attributes of objects and the system dynamics need to be modeled and estimated,  all while accounting for the loss of information during 3D to 2D image formation.
@@ -45,7 +45,7 @@ We evaluate gradSim's effectiveness on parameter identification tasks for rigid,
 ______
 
 
-## gradSim: A unified differentiable simulation engine
+## 2. gradSim: A unified differentiable simulation engine
 
 Typically, physics estimation and rendering have been treated as disjoint, mutually exclusive tasks. In this work, we take on a unified view of \emph{simulation} in general, to compose physics estimation \emph{and} rendering. Formally, simulation is a function
 
@@ -57,7 +57,7 @@ Here $\mathbf{p} \in \mathbb{R}^P$ is a vector representing the simulation state
 gradSim comprises two main components: a *differentiable physics engine* that computes the physical states of the scene at each time instant, and a *differentiable renderer* that renders the scene to a 2D image. Contrary to existing differentiable physics<dt-cite key="Toussaint-RSS-18"></dt-cite><dt-cite key="differentiable_lcp_kolter"></dt-cite><dt-cite key="song2020learning"></dt-cite><dt-cite key="song2020identifying"></dt-cite><dt-cite key="differentiable_physics_engine_for_robotics"></dt-cite><dt-cite key="vda"></dt-cite><dt-cite key="tiny_diff_simulator"></dt-cite><dt-cite key="difftaichi"></dt-cite><dt-cite key="scalable-diffphysics"></dt-cite> or differentiable rendering <dt-cite key="opendr"></dt-cite><dt-cite key="NMR"></dt-cite><dt-cite key="softras"></dt-cite><dt-cite key="dibr"></dt-cite> approaches, we adopt a holistic view and construct a computational graph spanning them both.
 
 
-### Differentiable physics engine
+### 2.1. Differentiable physics engine
 
 Under Lagrangian mechanics, the state of a physical system can be described in terms of generalized coordinates $\mathbf{q}$, generalized velocities $\dot{\mathbf{q}} = \mathbf{u}$, and design/model parameters $\mathbf{\theta}$. For the purpose of exposition, we make no distinction between rigid bodies, or deformable solids, or thin-shell models of cloth, etc. Although the specific choices of coordinates and parameters vary, the simulation procedure is virtually unchanged. We denote the combined state vector by $\mathbf{s}(t) = \left[\mathbf{q}(t), \mathbf{u}(t)\right]$.
 
@@ -66,7 +66,7 @@ The dynamic evolution of the system is governed by second order differential equ
 Gradients through this dynamical system can be computed by graph-based autodiff frameworks<dt-cite key="pytorch"></dt-cite><dt-cite key="tensorflow"></dt-cite><dt-cite key="jax"></dt-cite>, or by program transformation approaches<dt-cite key="difftaichi"></dt-cite><dt-cite key="tangent"></dt-cite>. Our framework is agnostic to the specifics of the differentiable physics engine, however in the appendix of our paper, we detail an efficient approach based on the source-code transformation of parallel kernels, similar to  DiffTaichi<dt-cite key="difftaichi"></dt-cite>. In addition, we describe extensions to this framework to support mesh-based tetrahedral finite-element models (FEMs) for deformable and thin-shell solids. This is important since we require surface meshes to perform differentiable rasterization as described in the following section.
 
 
-### Differentiable rendering engine
+### 2.2. Differentiable rendering engine
 
 A renderer expects a *scene description* as input and generates color images as output, all according to a sequence of image formation stages defined by the *forward* graphics pipeline. The scene description includes a complete *geometric* descriptor of scene elements, their associated material/reflectance properties, light source definitions, and virtual camera parameters. The rendering process is not generally differentiable, as *visibility* and *occlusion* events introduce discontinuities. Most interactive renderers, such as those used in real-time applications, employ a *rasterization* process to project 3D geometric primitives onto 2D pixel coordinates, resolving these visibility events with non-differentiable operations.
 
@@ -80,12 +80,12 @@ ______
 
 
 
-## Experiments
+## 3. Experiments
 
 
 We conducted multiple experiments to test the efficacy of gradSim on *physical parameter identification from video* and *visuomotor control*, to address the following questions:
 * Can we accurately identify physical parameters by backpropagating from video pixels, through the simulator? (Ans: *Yes, very accurately*)
-* What is the performance gap associated with using gradSim (2D supervision) vs. differentiable physics-only engines (3D supervision)? (Ans: *gradSim is  competitive/superior*
+* What is the performance gap associated with using gradSim (2D supervision) vs. differentiable physics-only engines (3D supervision)? (Ans: *gradSim is  competitive/superior*)
 * How do loss landscapes differ across differentiable simulators gradSim and their non-differentiable counterparts? (Ans: *Loss landscapes for gradSim are smooth*)
 * Can we use gradSim for visuomotor control tasks? (Ans: *Yes, without any 3D supervision*)
 * How sensitive is gradSim to modeling assumptions at system level? (Ans: *Moderately*)
@@ -94,7 +94,7 @@ Each of our experiments comprises an *environment* $\mathcal{E}$ that applies a 
 
 
 
-### Physical parameter estimation from video
+### 3.1. Physical parameter estimation from video
 
 
 First, we assess the capabilities of gradSim to accurately identify a variety of physical attributes such as mass, friction, and elasticity from image/video observations. To the best of our knowledge, gradSim is the first study to *jointly* infer such fine-grained parameters from video observations. We also implement a set of competitive baselines that use strictly more information on the task.
@@ -108,7 +108,7 @@ First, we assess the capabilities of gradSim to accurately identify a variety of
 </div>
 
 
-#### Rigid bodies
+#### 3.1.2. Rigid bodies
 
 Our first environment--*rigid*--evaluates the accuracy of estimating of physical and material attributes of rigid objects from videos. We curate a dataset of $10000$ simulated videos generated from variations of $14$ objects, comprising primitive shapes such as boxes, cones, cylinders, as well as non-convex shapes from ShapeNet<dt-cite key="ShapeNet"></dt-cite>and DexNet<dt-cite key="dexnet2"></dt-cite>. With uniformly sampled initial dimensions, poses, velocities, and physical properties (density, elasticity, and friction parameters), we apply a *known* impulse to the object and record a video of the resultant trajectory. Inference with gradSim is done by guessing an initial mass (uniformly random in the range $[2, 12] kg/m^3$), unrolling a *differentiable* simulation using this guess, comparing the rendered out video with the true video (pixelwise mean-squared error - MSE), and performing gradient descent updates. We refer the interested reader to the appendix of our paper for more details.
 
@@ -167,7 +167,7 @@ To investigate whether analytical *differentiability* is required, our PyBullet 
 
 
 
-#### Deformable objects
+#### 3.1.3. Deformable objects
 
 We conduct a series of experiments to investigate the ability of gradSim to recover physical parameters of deformable solids and thin-shell solids (cloth). Our physical model is parameterized by the per-particle mass, and Lame elasticity parameters, as described in the Appendix. Fig. 4 illustrates the recovery of the elasticity parameters of a beam hanging under gravity by matching the deformation given by an input video sequence. We found our method is able to accurately recover the parameters of $100$ instances of deformable objects (cloth, balls, beams) as reported in Table 3 and Fig. 3. The animation in Fig. 6 better illustrates the accuracy in material parameter estimation achieved by gradSim.
 
@@ -193,7 +193,7 @@ We conduct a series of experiments to investigate the ability of gradSim to reco
 
 
 
-### Visuomotor control
+### 3.2. Visuomotor control
 
 To investigate whether the gradients computed by gradSim are meaningful for vision-based tasks, we conduct a range of *visuomotor control* experiments involving the actuation of deformable objects towards a *visual target pose (a single image). In all cases, we evaluate against *DiffPhysics*, which uses a goal specification and a reward, both defined over the 3D *state-space*. See Fig. 7 for a summary of the experiments.
 
@@ -205,7 +205,7 @@ To investigate whether the gradients computed by gradSim are meaningful for visi
 </div>
 
 
-#### Deformable solids
+#### 3.2.1. Deformable solids
 
 The first example (*control-walker*) involves a 2D walker model. Our goal is to train a neural network (NN) control policy to actuate the walker to reach a target pose on the right-hand side of an image. Our NN consists of one fully connected layer and a $\textnormal{tanh}()$ activation. The network input is a set of $8$ time-varying sinusoidal signals, and the output is a scalar activation value per-tetrahedron. gradSim is able to \emph{solve} this environment within three iterations of gradient descent, by minimizing a pixelwise MSE between the last frame of the rendered video and the goal image as shown in Fig. 7 (lower left), and more descriptively in Fig. 8.
 
@@ -237,7 +237,7 @@ ______
 
 
 
-## Related Work
+## 4. Related Work
 
 
 **Differentiable physics simulators** have seen significant attention and activity, with efforts centered around embedding physics structure into autodifferentiation frameworks. This has enabled differentiation through contact and friction models<dt-cite key="Toussaint-RSS-18"></dt-cite><dt-cite key="differentiable_lcp_kolter"></dt-cite><dt-cite key="song2020learning"></dt-cite><dt-cite key="song2020identifying"></dt-cite><dt-cite key="differentiable_physics_engine_for_robotics"></dt-cite><dt-cite key="vda"></dt-cite><dt-cite key="tiny_diff_simulator"></dt-cite>, latent state models<dt-cite key="guen2020disentangling"></dt-cite><dt-cite key="schenck2018spnets"></dt-cite><dt-cite key="physics_as_inverse_graphics"></dt-cite><dt-cite key="heiden2019interactive"></dt-cite>, volumetric soft bodies<dt-cite key="chainqueen"></dt-cite><dt-cite key="mpm_displacement_continuity"></dt-cite><dt-cite key="differentiablecloth"></dt-cite><dt-cite key="difftaichi"></dt-cite>, as well as particle dynamics<dt-cite key="schenck2018spnets"></dt-cite><dt-cite key="li2018learning"></dt-cite><dt-cite key="li2020visual"></dt-cite><dt-cite key="difftaichi"></dt-cite>. In contrast, gradSim addresses a superset of simulation scenarios, by coupling the physics simulator  with a differentiable rendering pipeline. It also supports tetrahedral FEM-based hyperelasticity models to simulate deformable solids and thin-shells.
