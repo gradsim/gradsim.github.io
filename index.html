@@ -1,0 +1,1715 @@
+<!doctype html>
+<head>
+  <title>gradSim: Differentiable simulation for system identification and visuomotor control</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
+  <meta name="theme-color" content="#1a4067" />
+  <!-- SEO -->
+  <meta property="og:title" content="gradSim: Differentiable simulation for system identification and visuomotor control" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="gradSim is a differentiable simulator that combines differentiable physics and rendering engine for image-based system identification tasks, and for visuomotor control policy learning." />
+  <meta property="og:image" content="https://gradsim.github.io/assets/img/lmp_logo_rect.png" />
+  <meta property="og:url" content="https://gradsim.github.io/" />
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="gradSim: Differentiable simulation for system identification and visuomotor control" />
+  <meta name="twitter:description" content="" />
+  <meta property="og:site_name" content="gradSim is a differentiable simulator that combines differentiable physics and rendering engine for image-based system identification tasks, and for visuomotor control policy learning." />
+  <meta name="twitter:image" content="https://gradsim.github.io/assets/img/lmp_logo_square.png" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.5.1/katex.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<script src="lib/jquery-1.12.4.min.js"></script>
+<!--<script src="lib/mobile-detect.min.js"></script>-->
+<script src="lib/template.v1.js"></script>
+
+<div class="cover">
+  <h1 class="unselectable">gradSim: Differentiable simulation for<br>system identification and visuomotor control</h1>
+  <img src="assets/img/walker.gif"></img>
+  <div class="hint unselectable">scroll down</div>
+</div>
+
+<dt-article id="dtbody">
+<dt-byline class="l-page transparent"></dt-byline>
+<h1>gradSim: Differentiable simulation for system identification and visuomotor control</h1>
+<dt-byline class="l-page" id="authors_section">
+<div class="byline">
+  <div class="authors">
+    <div class="author">
+        <a class="name" href="https://krrish94.github.io">Krishna Murthy Jatavallabhula<sup>* 1,3,4</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="http://blog.mmacklin.com/">Miles Macklin<sup>* 2</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="https://fgolemo.github.io/">Florian Golemo<sup>1,3</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="https://voletiv.github.io/">Vikram Voleti<sup>3,4</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="https://lindapetrini.github.io/">Linda Petrini<sup>3</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="http://www.martin-weiss.me/research">Martin Weiss<sup>3,4</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="http://breandan.net/">Breandan Considine<sup>3,5</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="https://jeromepl.com/">Jerome Parent-Levesque<sup>3,5</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="https://kevincxie.github.io/">Kevin (Robert) Xie<sup>2,6,7</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="https://iphys.wordpress.com/">Kenny Erleben<sup>8</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="http://liampaull.ca">Liam Paull<sup>1,3,4</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="http://www.cs.toronto.edu/florian/">Florian Shkurti<sup>6,7</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="https://www.cim.mcgill.ca/derek/">Derek Nowrouzezahrai<sup>3,5</sup></a>
+    </div>
+    <div class="author">
+        <a class="name" href="http://www.cs.toronto.edu/\~fidler/">Sanja Fidler<sup>2,6,7</sup></a>
+    </div>
+  </div>
+
+  * Equal contribution <br>
+  
+  <sup>1</sup><a href="https://montrealrobotics.ca">Robotics and Embodied AI Lab</a>
+  <sup>2</sup><a href="https://www.nvidia.com/en-us/research/">NVIDIA</a>
+  <sup>3</sup><a href="https://mila.quebec/en">Mila</a>
+  <sup>4</sup><a href="https://umontreal.ca/en">Univ. of Montreal</a>
+  <sup>5</sup><a href="https://mcgill.ca">McGill</a>
+  <sup>6</sup><a href="https://vectorinstitute.ai/">Vector institute</a>
+  <sup>7</sup><a href="https://utoronto.ca">Univ. of Toronto</a>
+  <sup>8</sup><a href="https://www.ku.dk/english/">Univ. of Copenhagen</a>
+
+  <div class="date">
+    <div class="month">March 29</div>
+    <div class="year">2021</div>
+  </div>
+  <div class="date">
+    <div class="month">Download</div>
+    <div class="year" style="color: #0000FF;"><a href="https://openreview.net/forum?id=c_E8kFWfhp0" target="_blank">PDF</a></div> </div>
+</div>
+</dt-byline>
+</dt-byline>
+<h2>Abstract</h2>
+<p>We consider the problem of estimating an object's physical properties such as mass, friction, and elasticity directly from video sequences. Such a system identification problem is fundamentally ill-posed due to the loss of information during image formation. Current solutions require precise 3D labels which are labor-intensive to gather, and infeasible to create for many systems such as deformable solids or cloth. We present gradSim, a framework that overcomes the dependence on 3D supervision by leveraging differentiable multiphysics simulation and differentiable rendering to jointly model the evolution of scene dynamics and image formation. This novel combination enables backpropagation from pixels in a video sequence through to the underlying physical attributes that generated them. Moreover, our unified computation graph -- spanning from the dynamics and through the rendering process -- enables learning in challenging visuomotor control tasks, without relying on state-based (3D) supervision, while obtaining performance competitive to or better than techniques that rely on precise 3D labels.</p>
+<hr>
+<div class="figure">
+	<img class="b-lazy" width="100%" src="assets/img/teaser.png" alt="An assortment of physical systems implemented in gradSim."></img>
+	<figcaption>
+	Figure 1: <b>gradSim</b> is a unified differentiable rendering and multiphysics framework that allows solving a range of control and parameter estimation tasks (rigid bodies, deformable solids, and cloth) directly from images/video.
+	</figcaption>
+</div>
+<h2>Introduction</h2>
+<p>Accurately predicting the dynamics and physical characteristics of objects from image sequences is a long-standing challenge in computer vision.
+This end-to-end reasoning task requires a fundamental understanding of <em>both</em> the underlying scene dynamics and the imaging process. Imagine watching a short video of a basketball bouncing off the ground and ask: &quot;<em>Can we infer the mass and elasticity of the ball, predict its trajectory, and make informed decisions, e.g., how to pass and shoot?</em>&quot; These seemingly simple questions are extremely challenging to answer even for modern computer vision models. The underlying physical attributes of objects and the system dynamics need to be modeled and estimated,  all while accounting for the loss of information during 3D to 2D image formation.</p>
+<p>Depending on the assumptions on the scene structre and dynamics, three types of solutions exist: <em>black</em>, <em>grey</em>, or <em>white box</em>. <em>Black box</em> methods<dt-cite key="visualinteractionnets"></dt-cite><dt-cite key="densephysnet"></dt-cite><dt-cite key="object_oriented_prediction_and_planning"></dt-cite><dt-cite key="compositional_object_based"></dt-cite> model the state of a dynamical system (such as the basketball's trajectory in time) as a learned embedding of its states or observations. These methods require few prior assumptions about the system itself, but lack interpretability due to entangled variational factors <dt-cite key="infogan"></dt-cite> or due to the ambiguities in unsupervised learning <dt-cite key="greydanus2019hamiltonian"></dt-cite><dt-cite key="cranmer2020lagrangian"></dt-cite>. Recently, <em>grey box</em> methods <dt-cite key="nds"></dt-cite> leveraged partial knowledge about the system dynamics to improve performance. In contrast, <em>white box</em> methods <dt-cite key="differentiable_physics_engine_for_robotics"></dt-cite><dt-cite key="differentiablecloth"></dt-cite><dt-cite key="difftaichi"></dt-cite><dt-cite key="scalable-diffphysics"></dt-cite> impose prior knowledge by employing explicit dynamics models, reducing the space of learnable parameters and improving system interpretability. Most notably in our context, all of these approaches require precise 3D labels -- which are labor-intensive to gather, and infeasible to generate for many systems such as deformable solids or cloth.</p>
+<p><strong>We eliminate the dependence of white box dynamics methods on 3D supervision by coupling explicit (and differentiable) models of scene dynamics with image formation (rendering).</strong> (<em>Dynamics</em> refers to the laws governing the motion and deformation of objects over time. <em>Rendering</em> refers to the interaction of these scene elements -- including their material properties -- with scene lighting to form image sequences as observed by a virtual camera. <em>Simulation</em> refers to a unified treatment of these two processes.)</p>
+<p>Explicitly modeling the end-to-end dynamics and image formation underlying video observations is challenging, even with access to the full system state. This problem has been treated in the vision, graphics, and physics communities <dt-cite key="pbrt"></dt-cite><dt-cite key="miles-flex"></dt-cite>, leading to the development of robust forward simulation models and algorithms. These simulators are not readily usable for solving <em>inverse</em> problems, due in part to their non-differentiability. As such, applications of black-box <em>forward processes</em> often require surrogate gradient estimators such as finite differences or REINFORCE<dt-cite key="reinforce"></dt-cite> to enable any learning. Likelihood-free inference for black-box forward simulators<dt-cite key="bayessim"></dt-cite><dt-cite key="cranmer2019frontier"></dt-cite><dt-cite key="kulkarni_picture"></dt-cite><dt-cite key="causal_and_compositional_generative_models"></dt-cite><dt-cite key="analysis_by_synthesis_in_vision"></dt-cite><dt-cite key="inverse_graphics_face_processing"></dt-cite><dt-cite key="nsd"></dt-cite> has led to some improvements here, but remains limited in terms of data efficiency and scalability to high dimensional parameter spaces. Recent progress in <em>differentiable simulation</em> further improves the learning dynamics, however we still lack a method for end-to-end differentiation through the entire simulation process (i.e., from video pixels to physical attributes), a prerequisite for effective learning from video frames alone.</p>
+<p>We present gradSim, a versatile end-to-end differentiable simulator that adopts a holistic, unified view of differentiable dynamics and image formation (see Fig. 1, Fig. 2). Existing differentiable physics engines only model time-varying dynamics and require supervision in <em>state space</em> (usually 3D tracking). We additionally model a differentiable image formation process, thus only requiring target information specified in <em>image space</em>. This enables us to  backpropagate <dt-cite key="griewank_ad"></dt-cite> training signals from video pixels all the way to the underlying physical and dynamical attributes of a scene.</p>
+<div class="figure">
+	<img class="b-lazy" width="100%" src="assets/img/pipeline.png" alt="The gradSim system pipeline."></img>
+	<figcaption>
+	Figure 2: <b>gradSim</b>: Given video observations of an evolving physical system (e), we randomly initialize scene object properties (a) and evolve them over time using a differentiable physics engine (b), which generates *states*. Our renderer (c) processes states, object vertices and global rendering parameters to produce image frames for computing our loss. We backprop through this computation graph to estimate physical attributes and controls. Existing methods rely solely on differentiable physics engines and require supervision in state-space (f), while gradSim only needs image-space supervision (g).
+	</figcaption>
+</div>
+<p>Our main contributions are:</p>
+<ul>
+<li>gradSim, a differentiable simulator that demonstrates the ability to backprop from video pixels to the underlying physical attributes (Fig. 1, Fig. 2).</li>
+<li>We demonstrate recovering many physical properties exclusively from video observations, including friction, elasticity, deformable material parameters, and visuomotor controls (sans 3D supervision)</li>
+<li>A PyTorch framework facilitating interoperability with existing machine learning modules.</li>
+</ul>
+<p>We evaluate gradSim's effectiveness on parameter identification tasks for rigid, deformable and thin-shell bodies, and demonstrate performance that is competitive, or in some cases superior, to current physics-only differentiable simulators. Additionally, we demonstrate the effectiveness of the gradients provided by gradSim on challenging visuomotor control tasks involving deformable solids and cloth.</p>
+<hr>
+<h2>gradSim: A unified differentiable simulation engine</h2>
+<p>Typically, physics estimation and rendering have been treated as disjoint, mutually exclusive tasks. In this work, we take on a unified view of \emph{simulation} in general, to compose physics estimation \emph{and} rendering. Formally, simulation is a function</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtext><mi mathvariant="normal">S</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mtext><mo>:</mo><msup><mrow><mi mathvariant="double-struck">R</mi></mrow><mi>P</mi></msup><mo>×</mo><mrow><mo fence="true">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo fence="true">]</mo></mrow><mo>↦</mo><msup><mrow><mi mathvariant="double-struck">R</mi></mrow><mi>H</mi></msup><mo>×</mo><msup><mrow><mi mathvariant="double-struck">R</mi></mrow><mi>W</mi></msup><mo separator="true">;</mo><mtext><mi mathvariant="normal">S</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mtext><mo>(</mo><mrow><mi mathvariant="bold">p</mi></mrow><mo separator="true">,</mo><mi>t</mi><mo>)</mo><mo>=</mo><mrow><mi mathvariant="script">I</mi></mrow></mrow><annotation encoding="application/x-tex">\text{Sim}: \mathbb{R}^P \times \left[0, 1\right] \mapsto \mathbb{R}^H \times \mathbb{R}^W; \text{Sim}(\mathbf{p}, t) = \mathcal{I}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8413309999999999em;"></span><span class="strut bottom" style="height:1.0913309999999998em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="text mord textstyle uncramped"><span class="mord mathrm">S</span><span class="mord mathrm">i</span><span class="mord mathrm">m</span></span><span class="mrel">:</span><span class=""><span class="mord textstyle uncramped"><span class="mord mathbb">R</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathit" style="margin-right:0.13889em;">P</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">×</span><span class="minner textstyle uncramped"><span class="style-wrap reset-textstyle textstyle uncramped" style="top:0em;">[</span><span class="mord mathrm">0</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="style-wrap reset-textstyle textstyle uncramped" style="top:0em;">]</span></span><span class="mrel">↦</span><span class=""><span class="mord textstyle uncramped"><span class="mord mathbb">R</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathit" style="margin-right:0.08125em;">H</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">×</span><span class=""><span class="mord textstyle uncramped"><span class="mord mathbb">R</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathit" style="margin-right:0.13889em;">W</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mpunct">;</span><span class="text mord textstyle uncramped"><span class="mord mathrm">S</span><span class="mord mathrm">i</span><span class="mord mathrm">m</span></span><span class="mopen">(</span><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span><span class="mpunct">,</span><span class="mord mathit">t</span><span class="mclose">)</span><span class="mrel">=</span><span class="mord textstyle uncramped"><span class="mord mathcal" style="margin-right:0.07382em;">I</span></span></span></span></span>.</p>
+<p>Here <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">p</mi></mrow><mo>∈</mo><msup><mrow><mi mathvariant="double-struck">R</mi></mrow><mi>P</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{p} \in \mathbb{R}^P</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8413309999999999em;"></span><span class="strut bottom" style="height:1.035771em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span><span class="mrel">∈</span><span class=""><span class="mord textstyle uncramped"><span class="mord mathbb">R</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathit" style="margin-right:0.13889em;">P</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span> is a vector representing the simulation state and parameters (objects, their physical properties, their geometries, etc.), <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.61508em;"></span><span class="strut bottom" style="height:0.61508em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">t</span></span></span></span> denotes the time of simulation. Given initial conditions <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mrow><mi mathvariant="bold">p</mi></mrow><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{p}_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.44444em;"></span><span class="strut bottom" style="height:0.6888799999999999em;vertical-align:-0.24444em;"></span><span class="base textstyle uncramped"><span class=""><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span><span class="vlist"><span style="top:0.24444em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">0</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>, the simulation function produces an image <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="script">I</mi></mrow></mrow><annotation encoding="application/x-tex">\mathcal{I}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathcal" style="margin-right:0.07382em;">I</span></span></span></span></span> of height <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>H</mi></mrow><annotation encoding="application/x-tex">H</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.08125em;">H</span></span></span></span> and width <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>W</mi></mrow><annotation encoding="application/x-tex">W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.13889em;">W</span></span></span></span> at each timestep <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.61508em;"></span><span class="strut bottom" style="height:0.61508em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">t</span></span></span></span>. If this function <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtext><mi mathvariant="normal">S</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mtext></mrow><annotation encoding="application/x-tex">\text{Sim}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="text mord textstyle uncramped"><span class="mord mathrm">S</span><span class="mord mathrm">i</span><span class="mord mathrm">m</span></span></span></span></span> were differentiable, then the gradient of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtext><mi mathvariant="normal">S</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mtext><mo>(</mo><mrow><mi mathvariant="bold">p</mi></mrow><mo separator="true">,</mo><mi>t</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">\text{Sim}(\mathbf{p}, t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="text mord textstyle uncramped"><span class="mord mathrm">S</span><span class="mord mathrm">i</span><span class="mord mathrm">m</span></span><span class="mopen">(</span><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span><span class="mpunct">,</span><span class="mord mathit">t</span><span class="mclose">)</span></span></span></span> with respect to the simulation parameters <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">p</mi></mrow></mrow><annotation encoding="application/x-tex">\mathbf{p}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.44444em;"></span><span class="strut bottom" style="height:0.63888em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span></span></span></span> provides the change in the output of the simulation from <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="script">I</mi></mrow></mrow><annotation encoding="application/x-tex">\mathcal{I}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathcal" style="margin-right:0.07382em;">I</span></span></span></span></span> to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="script">I</mi></mrow><mo>+</mo><mi mathvariant="normal">∇</mi><mtext><mi mathvariant="normal">S</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mtext><mo>(</mo><mrow><mi mathvariant="bold">p</mi></mrow><mo separator="true">,</mo><mi>t</mi><mo>)</mo><mi>δ</mi><mrow><mi mathvariant="bold">p</mi></mrow></mrow><annotation encoding="application/x-tex">\mathcal{I} + \nabla \text{Sim}(\mathbf{p}, t)\delta\mathbf{p}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathcal" style="margin-right:0.07382em;">I</span></span><span class="mbin">+</span><span class="mord mathrm">∇</span><span class="text mord textstyle uncramped"><span class="mord mathrm">S</span><span class="mord mathrm">i</span><span class="mord mathrm">m</span></span><span class="mopen">(</span><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span><span class="mpunct">,</span><span class="mord mathit">t</span><span class="mclose">)</span><span class="mord mathit" style="margin-right:0.03785em;">δ</span><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span></span></span></span> due to an <em>infinitesimal perturbation</em> of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">p</mi></mrow></mrow><annotation encoding="application/x-tex">\mathbf{p}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.44444em;"></span><span class="strut bottom" style="height:0.63888em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span></span></span></span> by <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>δ</mi><mrow><mi mathvariant="bold">p</mi></mrow></mrow><annotation encoding="application/x-tex">\delta\mathbf{p}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.03785em;">δ</span><span class="mord textstyle uncramped"><span class="mord mathbf">p</span></span></span></span></span>. This construct enables a gradient-based optimizer to estimate physical parameters from video, by defining a <em>loss function</em> over the image space <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="script">L</mi></mrow><mo>(</mo><mrow><mi mathvariant="script">I</mi></mrow><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">\mathcal{L}(\mathcal{I}, .)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathcal">L</span></span><span class="mopen">(</span><span class="mord textstyle uncramped"><span class="mord mathcal" style="margin-right:0.07382em;">I</span></span><span class="mpunct">,</span><span class="mord mathrm">.</span><span class="mclose">)</span></span></span></span>, and descending this loss landscape along a direction parallel to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>−</mo><mi mathvariant="normal">∇</mi><mtext><mi mathvariant="normal">S</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mtext><mo>(</mo><mi mathvariant="normal">.</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">- \nabla \text{Sim}(.)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mord">−</span><span class="mord mathrm">∇</span><span class="text mord textstyle uncramped"><span class="mord mathrm">S</span><span class="mord mathrm">i</span><span class="mord mathrm">m</span></span><span class="mopen">(</span><span class="mord mathrm">.</span><span class="mclose">)</span></span></span></span>.To realise this, we turn to the paradigms of <em>computational graphs</em> and <em>differentiable programming</em>.</p>
+<p>gradSim comprises two main components: a <em>differentiable physics engine</em> that computes the physical states of the scene at each time instant, and a <em>differentiable renderer</em> that renders the scene to a 2D image. Contrary to existing differentiable physics<dt-cite key="Toussaint-RSS-18"></dt-cite><dt-cite key="differentiable_lcp_kolter"></dt-cite><dt-cite key="song2020learning"></dt-cite><dt-cite key="song2020identifying"></dt-cite><dt-cite key="differentiable_physics_engine_for_robotics"></dt-cite><dt-cite key="vda"></dt-cite><dt-cite key="tiny_diff_simulator"></dt-cite><dt-cite key="difftaichi"></dt-cite><dt-cite key="scalable-diffphysics"></dt-cite> or differentiable rendering <dt-cite key="opendr"></dt-cite><dt-cite key="NMR"></dt-cite><dt-cite key="softras"></dt-cite><dt-cite key="dibr"></dt-cite> approaches, we adopt a holistic view and construct a computational graph spanning them both.</p>
+<h3>Differentiable physics engine</h3>
+<p>Under Lagrangian mechanics, the state of a physical system can be described in terms of generalized coordinates <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">q</mi></mrow></mrow><annotation encoding="application/x-tex">\mathbf{q}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.44444em;"></span><span class="strut bottom" style="height:0.63888em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf">q</span></span></span></span></span>, generalized velocities <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mover accent="true"><mrow><mrow><mi mathvariant="bold">q</mi></mrow></mrow><mo>˙</mo></mover><mo>=</mo><mrow><mi mathvariant="bold">u</mi></mrow></mrow><annotation encoding="application/x-tex">\dot{\mathbf{q}} = \mathbf{u}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.6813em;"></span><span class="strut bottom" style="height:0.87574em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord accent"><span class="vlist"><span style="top:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="mord textstyle cramped"><span class="mord textstyle cramped"><span class="mord mathbf">q</span></span></span></span><span style="top:-0.013440000000000007em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="accent-body"><span>˙</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord textstyle uncramped"><span class="mord mathbf">u</span></span></span></span></span>, and design/model parameters <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi>θ</mi></mrow></mrow><annotation encoding="application/x-tex">\mathbf{\theta}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.69444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathit" style="margin-right:0.02778em;">θ</span></span></span></span></span>. For the purpose of exposition, we make no distinction between rigid bodies, or deformable solids, or thin-shell models of cloth, etc. Although the specific choices of coordinates and parameters vary, the simulation procedure is virtually unchanged. We denote the combined state vector by <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">s</mi></mrow><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><mrow><mo fence="true">[</mo><mrow><mi mathvariant="bold">q</mi></mrow><mo>(</mo><mi>t</mi><mo>)</mo><mo separator="true">,</mo><mrow><mi mathvariant="bold">u</mi></mrow><mo>(</mo><mi>t</mi><mo>)</mo><mo fence="true">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{s}(t) = \left[\mathbf{q}(t), \mathbf{u}(t)\right]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf">s</span></span><span class="mopen">(</span><span class="mord mathit">t</span><span class="mclose">)</span><span class="mrel">=</span><span class="minner textstyle uncramped"><span class="style-wrap reset-textstyle textstyle uncramped" style="top:0em;">[</span><span class="mord textstyle uncramped"><span class="mord mathbf">q</span></span><span class="mopen">(</span><span class="mord mathit">t</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mord textstyle uncramped"><span class="mord mathbf">u</span></span><span class="mopen">(</span><span class="mord mathit">t</span><span class="mclose">)</span><span class="style-wrap reset-textstyle textstyle uncramped" style="top:0em;">]</span></span></span></span></span>.</p>
+<p>The dynamic evolution of the system is governed by second order differential equations (ODEs) of the form <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">M</mi></mrow><mo>(</mo><mrow><mi mathvariant="bold">s</mi></mrow><mo separator="true">,</mo><mi>θ</mi><mtext> </mtext><mo>)</mo><mover accent="true"><mrow><mrow><mi mathvariant="bold">s</mi></mrow></mrow><mo>˙</mo></mover><mo>=</mo><mrow><mi mathvariant="bold">f</mi></mrow><mo>(</mo><mrow><mi mathvariant="bold">s</mi></mrow><mo separator="true">,</mo><mi>θ</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">\mathbf{M}(\mathbf{s}, \theta\ )\dot{\mathbf{s}} = \mathbf{f}(\mathbf{s}, \theta)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf">M</span></span><span class="mopen">(</span><span class="mord textstyle uncramped"><span class="mord mathbf">s</span></span><span class="mpunct">,</span><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="mord mspace"> </span><span class="mclose">)</span><span class="mord accent"><span class="vlist"><span style="top:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="mord textstyle cramped"><span class="mord textstyle cramped"><span class="mord mathbf">s</span></span></span></span><span style="top:-0.013440000000000007em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="accent-body"><span>˙</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord textstyle uncramped"><span class="mord mathbf" style="margin-right:0.10903em;">f</span></span><span class="mopen">(</span><span class="mord textstyle uncramped"><span class="mord mathbf">s</span></span><span class="mpunct">,</span><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">M</mi></mrow></mrow><annotation encoding="application/x-tex">\mathbf{M}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68611em;"></span><span class="strut bottom" style="height:0.68611em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf">M</span></span></span></span></span> is a mass matrix that depends on the state and parameters. The forces on the system may be parameterized by design parameters (e.g. Young's modulus). Solutions to these ODEs  may be obtained through black box numerical integration methods, and their derivatives calculated through the continuous adjoint method<dt-cite key="neuralode"></dt-cite>. However, we instead consider our physics engine as a differentiable operation that provides an implicit relationship between a state vector <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mrow><mi mathvariant="bold">s</mi></mrow><mo>−</mo></msup><mo>=</mo><mrow><mi mathvariant="bold">s</mi></mrow><mo>(</mo><mi>t</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">\mathbf{s}^- = \mathbf{s}(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.771331em;"></span><span class="strut bottom" style="height:1.021331em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class=""><span class="mord textstyle uncramped"><span class="mord mathbf">s</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord">−</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord textstyle uncramped"><span class="mord mathbf">s</span></span><span class="mopen">(</span><span class="mord mathit">t</span><span class="mclose">)</span></span></span></span> at the start of a time step, and the updated state at the end of the time step \mathbf{s}^+ = \mathbf{s}(t + \dt). An arbitrary discrete time integration scheme can be then be abstracted as the function <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="bold">g</mi></mrow><mo>(</mo><msup><mrow><mi mathvariant="bold">s</mi></mrow><mo>−</mo></msup><mo separator="true">,</mo><msup><mrow><mi mathvariant="bold">s</mi></mrow><mo>+</mo></msup><mo separator="true">,</mo><mi>θ</mi><mo>)</mo><mo>=</mo><mrow><mn mathvariant="bold">0</mn></mrow></mrow><annotation encoding="application/x-tex">\mathbf{g}(\mathbf{s}^-, \mathbf{s}^+, \theta) = \mathbf{0}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.771331em;"></span><span class="strut bottom" style="height:1.021331em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathbf" style="margin-right:0.01597em;">g</span></span><span class="mopen">(</span><span class=""><span class="mord textstyle uncramped"><span class="mord mathbf">s</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord">−</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mpunct">,</span><span class=""><span class="mord textstyle uncramped"><span class="mord mathbf">s</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord">+</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mpunct">,</span><span class="mord mathit" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span><span class="mrel">=</span><span class="mord textstyle uncramped"><span class="mord mathbf">0</span></span></span></span></span>, relating the initial and final system state and the model parameters <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>θ</mi></mrow><annotation encoding="application/x-tex">\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.69444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.02778em;">θ</span></span></span></span>.</p>
+<p>Gradients through this dynamical system can be computed by graph-based autodiff frameworks<dt-cite key="pytorch"></dt-cite><dt-cite key="tensorflow"></dt-cite><dt-cite key="jax"></dt-cite>, or by program transformation approaches<dt-cite key="difftaichi"></dt-cite><dt-cite key="tangent"></dt-cite>. Our framework is agnostic to the specifics of the differentiable physics engine, however in the appendix of our paper, we detail an efficient approach based on the source-code transformation of parallel kernels, similar to  DiffTaichi<dt-cite key="difftaichi"></dt-cite>. In addition, we describe extensions to this framework to support mesh-based tetrahedral finite-element models (FEMs) for deformable and thin-shell solids. This is important since we require surface meshes to perform differentiable rasterization as described in the following section.</p>
+<h3>Differentiable rendering engine</h3>
+<p>A renderer expects a <em>scene description</em> as input and generates color images as output, all according to a sequence of image formation stages defined by the <em>forward</em> graphics pipeline. The scene description includes a complete <em>geometric</em> descriptor of scene elements, their associated material/reflectance properties, light source definitions, and virtual camera parameters. The rendering process is not generally differentiable, as <em>visibility</em> and <em>occlusion</em> events introduce discontinuities. Most interactive renderers, such as those used in real-time applications, employ a <em>rasterization</em> process to project 3D geometric primitives onto 2D pixel coordinates, resolving these visibility events with non-differentiable operations.</p>
+<p>Our experiments employ two differentiable alternatives to traditional rasterization, SoftRas<dt-cite key="softras"></dt-cite> and DIB-R<dt-cite key="dibr"></dt-cite>, both of which replace discontinuous triangle mesh edges with smooth sigmoids. This has the effect of blurring triangle edges into semi-transparent boundaries, thereby removing the non-differentiable discontinuity of traditional rasterization. DIB-R distinguishes between <em>foreground pixels</em> (associated to the principal object being rendered in the scene) and <em>background pixels</em> (for all other objects, if any). The latter are rendered using the same technique as SoftRas while the former are rendered by bilinearly sampling a texture using differentiable UV coordinates.</p>
+<p><em>gradSim performs differentiable physics simulation and rendering at independent and adjustable rates, allowing us to trade computation for accuracy by rendering fewer frames than dynamics updates.</em></p>
+<hr>
+<h2>Experiments</h2>
+<p>We conducted multiple experiments to test the efficacy of gradSim on <em>physical parameter identification from video</em> and <em>visuomotor control</em>, to address the following questions:</p>
+<ul>
+<li>Can we accurately identify physical parameters by backpropagating from video pixels, through the simulator? (Ans: <em>Yes, very accurately</em>)</li>
+<li>What is the performance gap associated with using gradSim (2D supervision) vs. differentiable physics-only engines (3D supervision)? (Ans: <em>gradSim is  competitive/superior</em></li>
+<li>How do loss landscapes differ across differentiable simulators gradSim and their non-differentiable counterparts? (Ans: <em>Loss landscapes for gradSim are smooth</em>)</li>
+<li>Can we use gradSim for visuomotor control tasks? (Ans: <em>Yes, without any 3D supervision</em>)</li>
+<li>How sensitive is gradSim to modeling assumptions at system level? (Ans: <em>Moderately</em>)</li>
+</ul>
+<p>Each of our experiments comprises an <em>environment</em> <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="script">E</mi></mrow></mrow><annotation encoding="application/x-tex">\mathcal{E}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathcal" style="margin-right:0.08944em;">E</span></span></span></span></span> that applies a particular set of physical forces and/or constraints, a (differentiable) <em>loss function</em> <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="script">L</mi></mrow></mrow><annotation encoding="application/x-tex">\mathcal{L}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathcal">L</span></span></span></span></span> that implicitly specifies an objective, and an <em>initial guess</em> <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mrow><mi>θ</mi></mrow><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{\theta}_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="base textstyle uncramped"><span class=""><span class="mord textstyle uncramped"><span class="mord mathit" style="margin-right:0.02778em;">θ</span></span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">0</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span> of the physical state of the simulation. The goal is to recover optimal physics parameters <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msup><mrow><mi>θ</mi></mrow><mrow><mo>∗</mo></mrow></msup></mrow><annotation encoding="application/x-tex">\mathbf{\theta}^{*}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.69444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class=""><span class="mord textstyle uncramped"><span class="mord mathit" style="margin-right:0.02778em;">θ</span></span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord">∗</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span> that minimize <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi mathvariant="script">L</mi></mrow></mrow><annotation encoding="application/x-tex">\mathcal{L}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.68333em;"></span><span class="strut bottom" style="height:0.68333em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathcal">L</span></span></span></span></span>, by backpropagating through the simulator.</p>
+<h3>Physical parameter estimation from video</h3>
+<p>First, we assess the capabilities of gradSim to accurately identify a variety of physical attributes such as mass, friction, and elasticity from image/video observations. To the best of our knowledge, gradSim is the first study to <em>jointly</em> infer such fine-grained parameters from video observations. We also implement a set of competitive baselines that use strictly more information on the task.</p>
+<div class="figure">
+	<img class="b-lazy" width="70%" src="assets/img/qualitative-main-estimation.png" alt="A qualitative summary of physical parameter estimation results obtained by gradSim."></img>
+	<figcaption>
+	Figure 3: <b>Parameter Estimation</b>: For <i>deformable</i> experiments, we optimize the material properties of a beam to match a video of a beam hanging under gravity. In the <i>rigid</i> experiments, we estimate contact parameters (elasticity/friction) and object density to match a video (GT). We visualize entire time sequences (t) with color-coded blends.
+	</figcaption>
+</div>
+<h4>Rigid bodies</h4>
+<p>Our first environment--<em>rigid</em>--evaluates the accuracy of estimating of physical and material attributes of rigid objects from videos. We curate a dataset of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>1</mn><mn>0</mn><mn>0</mn><mn>0</mn><mn>0</mn></mrow><annotation encoding="application/x-tex">10000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.64444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">1</span><span class="mord mathrm">0</span><span class="mord mathrm">0</span><span class="mord mathrm">0</span><span class="mord mathrm">0</span></span></span></span> simulated videos generated from variations of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>1</mn><mn>4</mn></mrow><annotation encoding="application/x-tex">14</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.64444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">1</span><span class="mord mathrm">4</span></span></span></span> objects, comprising primitive shapes such as boxes, cones, cylinders, as well as non-convex shapes from ShapeNet<dt-cite key="ShapeNet"></dt-cite>and DexNet<dt-cite key="dexnet2"></dt-cite>. With uniformly sampled initial dimensions, poses, velocities, and physical properties (density, elasticity, and friction parameters), we apply a <em>known</em> impulse to the object and record a video of the resultant trajectory. Inference with gradSim is done by guessing an initial mass (uniformly random in the range <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>[</mo><mn>2</mn><mo separator="true">,</mo><mn>1</mn><mn>2</mn><mo>]</mo><mi>k</mi><mi>g</mi><mi mathvariant="normal">/</mi><msup><mi>m</mi><mn>3</mn></msup></mrow><annotation encoding="application/x-tex">[2, 12] kg/m^3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8141079999999999em;"></span><span class="strut bottom" style="height:1.064108em;vertical-align:-0.25em;"></span><span class="base textstyle uncramped"><span class="mopen">[</span><span class="mord mathrm">2</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mord mathrm">2</span><span class="mclose">]</span><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathrm">/</span><span class="mord"><span class="mord mathit">m</span><span class="vlist"><span style="top:-0.363em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord mathrm">3</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>), unrolling a <em>differentiable</em> simulation using this guess, comparing the rendered out video with the true video (pixelwise mean-squared error - MSE), and performing gradient descent updates. We refer the interested reader to the appendix of our paper for more details.</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Mean abs. err. (kg)</th>
+<th>Abs. rel. err.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Average</td>
+<td>0.2022</td>
+<td>0.1031</td>
+</tr>
+<tr>
+<td>Random</td>
+<td>0.2653</td>
+<td>0.1344</td>
+</tr>
+<tr>
+<td>ConvLSTM <dt-cite key="densephysnet"></dt-cite></td>
+<td>0.1347</td>
+<td>0.0094</td>
+</tr>
+<tr>
+<td>PyBullet + REINFORCE <dt-cite key="ehsani2020force"></dt-cite></td>
+<td>0.0928</td>
+<td>0.3668</td>
+</tr>
+<tr>
+<td>DiffPhysics (3D Supervsion)</td>
+<td>1.35e-9</td>
+<td>5.17e-9</td>
+</tr>
+<tr>
+<td>gradSim (Ours)</td>
+<td>2.36e-5</td>
+<td>9.01e-5</td>
+</tr>
+</tbody>
+</table>
+<div class="figure">
+	<figcaption>
+	Table 1: <b>Mass estimation</b>: gradSim obtains <i>precise</i> mass estimates, comparing favourably even with approaches that require 3D supervision (<i>diffphysics</i>). We report the mean abolute error and absolute relative errors for all approaches evaluated.
+	</figcaption>
+</div>
+<p>Table 1 shows the results for predicting the mass of an object from video, with a known impulse applied to it. We use EfficientNet (B0)<dt-cite key="efficientnet"></dt-cite> and resize input frames to <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>6</mn><mn>4</mn><mo>×</mo><mn>6</mn><mn>4</mn></mrow><annotation encoding="application/x-tex">64 \times 64</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">6</span><span class="mord mathrm">4</span><span class="mbin">×</span><span class="mord mathrm">6</span><span class="mord mathrm">4</span></span></span></span>. Feature maps at a resoluition of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>4</mn><mo>×</mo><mn>4</mn><mo>×</mo><mn>3</mn><mn>2</mn></mrow><annotation encoding="application/x-tex">4 \times 4 \times 32</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">4</span><span class="mbin">×</span><span class="mord mathrm">4</span><span class="mbin">×</span><span class="mord mathrm">3</span><span class="mord mathrm">2</span></span></span></span> are concatenated for all frames and fed to an MLP with 4 linear layers, and trained with an MSE loss. We compare gradSim with three other baselines: PyBullet + REINFORCE<dt-cite key="ehsani2020force"></dt-cite><dt-cite key="galileo"></dt-cite>, diff. physics only (requiring 3D supervision), and a ConvLSTM baseline adopted from <dt-cite key="densephysnet"></dt-cite> but with a stronger backbone. The <em>DiffPhysics</em> baseline is a strict subset of gradSim, it only inolves the differentiable physics engine. However, it needs precise 3D states as supervision, which is the primary factor for its superior performance. Nevertheless, gradSim is able to very precisely estimate mass from video, to a absolute relative error of 9.01e-5, nearly two orders of magnitude better than the ConvLSTM baseline. Two other baselines are also used: the <em>Average</em> baseline always predicts the dataset mean and the <em>Random</em> baseline predicts a random parameter value from the test distribution.</p>
+<p>To investigate whether analytical <em>differentiability</em> is required, our PyBullet + REINFORCE baseline applies black-box gradient estimation<dt-cite key="reinforce"></dt-cite> through a non-differentiable simulator<dt-cite key="pybullet"></dt-cite>, similar to<dt-cite key="ehsani2020force"></dt-cite>. We find this baseline particularly sensitive to several simulation parameters, and thus worse-performing. In Table 2, we jointly estimate friction and elasticity parameters of our compliant contact model from video observations alone. Here again, gradSim is able to precisely recover the parameters of the simulation. A few examples can be seen in Fig. 3. Parameter identification results on rigid objects can also be seen in Fig. 4 and Fig. 5.</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>mass</th>
+<th>elasticity (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>k</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">k_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.03148em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit">d</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>)</th>
+<th>elasticity (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>k</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">k_e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.03148em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit">e</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>)</th>
+<th>friction (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>k</mi><mi>f</mi></msub></mrow><annotation encoding="application/x-tex">k_f</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.980548em;vertical-align:-0.286108em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.03148em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit" style="margin-right:0.10764em;">f</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>)</th>
+<th>friction (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>μ</mi></mrow><annotation encoding="application/x-tex">\mu</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.43056em;"></span><span class="strut bottom" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord mathit">μ</span></span></span></span>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Average</td>
+<td>1.771</td>
+<td>3.715</td>
+<td>2.341</td>
+<td>4.116</td>
+<td>0.446</td>
+</tr>
+<tr>
+<td>Random</td>
+<td>10.001</td>
+<td>4.180</td>
+<td>2.545</td>
+<td>5.024</td>
+<td>0.556</td>
+</tr>
+<tr>
+<td>ConvLSTM <dt-cite key="densephysnet"></dt-cite></td>
+<td>0.029</td>
+<td>0.140</td>
+<td>0.140</td>
+<td>0.170</td>
+<td>0.096</td>
+</tr>
+<tr>
+<td>DiffPhysics (3D Supervsion)</td>
+<td>1.70e-8</td>
+<td>0.036</td>
+<td>0.002</td>
+<td>0.001</td>
+<td>0.011</td>
+</tr>
+<tr>
+<td>gradSim (Ours)</td>
+<td>2.87e-4</td>
+<td>0.400</td>
+<td>0.003</td>
+<td>0.001</td>
+<td>0.007</td>
+</tr>
+</tbody>
+</table>
+<div class="figure">
+	<figcaption>
+	Table 2: <b>Rigid-body parameter estimation</b>: gradSim estimates contact parameters (elasticity, friction) to a high degree of accuracy, despite estimating them from video. *DiffPhysics* requires accurate 3D ground-truth at $30$ FPS. We report absolute *relative* errors for each approach evaluated.
+	</figcaption>
+</div>
+<div class="figure">
+	<img class="b-lazy" width="30%" src="assets/gif/rigid-init.gif" alt="Initial estimate of mass is erroneous (heavier); hence the generated cube does not bounce upon impact."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/rigid-opt.gif" alt="gradSim obtains precise mass estimates within 100 iterations of gradient descent."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/rigid-gt.gif" alt="Ground-truth video used for generating an error signal."></img>
+	<figcaption>
+	Figure 4: <b>Mass estimation</b> of a rigid cube. (Left) Initial estimate of mass is erroneous (heavier); hence the generated cube does not bounce upon impact. (Middle) gradSim obtains <i>precise</i> mass estimates within 100 iterations of gradient descent. (Right) Ground-truth video used for generating an error signal. The mean-squared error between the ground-truth video and the initial guess is used to generate the loss signal at the first iteration. Thereafter, the parameters are updated by gradient descent.
+	</figcaption>
+</div>
+<div class="figure">
+	<img class="b-lazy" width="30%" src="assets/gif/friction-init.gif" alt="Initial estimate of friction is erroneous, and the object attains a different final-configuration upon impact."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/friction-opt.gif" alt="gradSim obtains precise friction estimates within 100 iterations of gradient descent."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/friction-gt.gif" alt="Ground-truth video used for generating an error signal."></img>
+	<figcaption>
+	Figure 5: <b>Friction estimation</b> of a rigid object. (Left) Initial estimate of friction is erroneous, and the object attains a different final-configuration upon impact. (Middle) gradSim obtains <i>precise</i> friction estimates within 100 iterations of gradient descent. (Right) Ground-truth video used for generating an error signal. The mean-squared error between the ground-truth video and the initial guess is used to generate the loss signal at the first iteration. Thereafter, the parameters are updated by gradient descent.
+	</figcaption>
+</div>
+<h4>Deformable objects</h4>
+<p>We conduct a series of experiments to investigate the ability of gradSim to recover physical parameters of deformable solids and thin-shell solids (cloth). Our physical model is parameterized by the per-particle mass, and Lame elasticity parameters, as described in the Appendix. Fig. 4 illustrates the recovery of the elasticity parameters of a beam hanging under gravity by matching the deformation given by an input video sequence. We found our method is able to accurately recover the parameters of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>1</mn><mn>0</mn><mn>0</mn></mrow><annotation encoding="application/x-tex">100</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.64444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">1</span><span class="mord mathrm">0</span><span class="mord mathrm">0</span></span></span></span> instances of deformable objects (cloth, balls, beams) as reported in Table 3 and Fig. 3. The animation in Fig. 6 better illustrates the accuracy in material parameter estimation achieved by gradSim.</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Deformable solid - mass</th>
+<th>Material parameter <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>μ</mi></mrow><annotation encoding="application/x-tex">\mu</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.43056em;"></span><span class="strut bottom" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="base textstyle uncramped"><span class="mord mathit">μ</span></span></span></span></th>
+<th>Material parameter <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.69444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathit">λ</span></span></span></span></th>
+<th>Cloth - per-particle velocity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DiffPhysics (3D Supervsion)</td>
+<td>0.032</td>
+<td>0.0025</td>
+<td>0.0024</td>
+<td>0.127</td>
+</tr>
+<tr>
+<td>gradSim (Ours)</td>
+<td>0.048</td>
+<td>0.0054</td>
+<td>0.0056</td>
+<td>0.026</td>
+</tr>
+</tbody>
+</table>
+<div class="figure">
+	<figcaption>
+	Table 3: <b>Parameter estimation of deformable objects</b>: We estimate per-particle masses and material properties (for solid def. objects) and per-particle velocities for cloth. In the case of cloth, there is a perceivable performance drop in *DiffPhysics*, as the center of mass of a cloth is often outside the body, which results in ambiguity.
+	</figcaption>
+</div>
+<div class="figure">
+	<img class="b-lazy" width="30%" src="assets/gif/beam-init.gif" alt="Initial estimates of material parameters are erroneous, resulting in a soggy beam."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/beam-opt.gif" alt="gradSim obtains precise material parameters within 200 iterations of gradient descent."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/beam-gt.gif" alt="Ground-truth video used for generating an error signal."></img>
+	<figcaption>
+	Figure 6: <b>Material property estimation</b> of a deformable solid beam. (Left) Initial material properties (Lame parameters) are erroneous, resulting in a soggy beam. (Middle) gradSim obtains <i>precise</i> material properties within 200 iterations of gradient descent. (Right) Ground-truth video used for generating an error signal.
+	</figcaption>
+</div>
+<h3>Visuomotor control</h3>
+<p>To investigate whether the gradients computed by gradSim are meaningful for vision-based tasks, we conduct a range of <em>visuomotor control</em> experiments involving the actuation of deformable objects towards a *visual target pose (a single image). In all cases, we evaluate against <em>DiffPhysics</em>, which uses a goal specification and a reward, both defined over the 3D <em>state-space</em>. See Fig. 7 for a summary of the experiments.</p>
+<div class="figure">
+	<img class="b-lazy" width="70%" src="assets/img/qualitative-main-control.png"></img>
+	<figcaption>
+	Figure 7: <b>Visuomotor Control</b>: gradSim provides gradients suitable for diverse, complex visuomotor control tasks. For *control-fem* and *control-walker* experiments, we train a neural network to actuate a soft body towards a target *image* (GT). For *control-cloth*, we optimize the cloth's initial velocity to hit a target (GT) (specified as an image), under nonlinear lift/drag forces.
+	</figcaption>
+</div>
+<h4>Deformable solids</h4>
+<p>The first example (<em>control-walker</em>) involves a 2D walker model. Our goal is to train a neural network (NN) control policy to actuate the walker to reach a target pose on the right-hand side of an image. Our NN consists of one fully connected layer and a \textnormal{tanh}() activation. The network input is a set of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>8</mn></mrow><annotation encoding="application/x-tex">8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.64444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">8</span></span></span></span> time-varying sinusoidal signals, and the output is a scalar activation value per-tetrahedron. gradSim is able to \emph{solve} this environment within three iterations of gradient descent, by minimizing a pixelwise MSE between the last frame of the rendered video and the goal image as shown in Fig. 7 (lower left), and more descriptively in Fig. 8.</p>
+<div class="figure">
+	<img class="b-lazy" width="23%" src="assets/gif/walker-iter0.gif" alt="The (randomly initialized) walker wiggles in-place during the first iteration."></img>
+	<img class="b-lazy" width="23%" src="assets/gif/walker-iter1.gif" alt="In the second iteration, the walker begins walking towards the goal configuration."></img>
+	<img class="b-lazy" width="23%" src="assets/gif/walker-iter2.gif" alt="In the third iteration, the walker successfully reaches the goal configuration."></img>
+	<img class="b-lazy" width="23%" src="assets/gif/walker-target.png" alt="Target image specifying a goal configuration for the 2D walker."></img>
+	<figcaption>
+	Figure 8: <b>Visuomotor control of a 2D walker</b>: (Left-to-right) The (randomly initialized) walker wiggles in-place during the first iteration; In the second iteration, the walker begins walking towards the goal configuration; In the third iteration, the walker successfully reaches the goal configuration; Target image specifying a goal configuration for the 2D walker.
+	</figcaption>
+</div>
+<p>In our second test, we formulate a more challenging 3D control problem (<em>control-fem</em>) where the goal is to actuate a soft-body FEM object (a <em>gear</em>) consisting of <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>1</mn><mn>1</mn><mn>5</mn><mn>2</mn></mrow><annotation encoding="application/x-tex">1152</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.64444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">1</span><span class="mord mathrm">1</span><span class="mord mathrm">5</span><span class="mord mathrm">2</span></span></span></span> tetrahedral elements to move to a target position as shown in Fig. 7 (center) and in Fig. 9. We use the same NN architecture as in the 2D walker example, and use the Adam<dt-cite key="kingma2015adam"></dt-cite> optimizer to minimize a pixelwise MSE loss. We also train a privileged baseline (<em>DiffPhysics</em>) that uses strong supervision and minimizes the MSE between the target position and the precise 3D location of the center-of-mass (COM) of the FEM model at each time step (i.e. a <em>dense</em> reward). While Diffphysics appears to be a strong performer on this task, it is important to  note that it uses explicit 3D supervision at each timestep (i.e. <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>3</mn><mn>0</mn></mrow><annotation encoding="application/x-tex">30</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.64444em;"></span><span class="strut bottom" style="height:0.64444em;vertical-align:0em;"></span><span class="base textstyle uncramped"><span class="mord mathrm">3</span><span class="mord mathrm">0</span></span></span></span> FPS). In contrast, gradSim uses a <em>single image</em> as an implicit target, and yet manages to achieve the goal state, albeit taking a longer number of iterations.</p>
+<div class="figure">
+	<img class="b-lazy" width="30%" src="assets/gif/gear-init.gif" alt="The (randomly initialized) gear wiggles in-place during the first iteration."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/gear-opt.gif" alt="After 300 iterations of gradient descent, the gear successfully rolls over to the target position."></img>
+	<img class="b-lazy" width="30%" src="assets/gif/gear-gt.png" alt="Target image specifying a goal configuration for the 2D walker."></img>
+	<figcaption>
+	Figure 9: <b>Visuomotor control of a 3D gear</b>: (Left) The (randomly initialized) gear wiggles in-place during the first iteration. (Middle) After 300 iterations of gradient descent, the gear successfully rolls over to the target position. (Right) Target image specifying a goal configuration for the 2D walker.
+	</figcaption>
+</div>
+<hr>
+<h2>Related Work</h2>
+<p><strong>Differentiable physics simulators</strong> have seen significant attention and activity, with efforts centered around embedding physics structure into autodifferentiation frameworks. This has enabled differentiation through contact and friction models<dt-cite key="Toussaint-RSS-18"></dt-cite><dt-cite key="differentiable_lcp_kolter"></dt-cite><dt-cite key="song2020learning"></dt-cite><dt-cite key="song2020identifying"></dt-cite><dt-cite key="differentiable_physics_engine_for_robotics"></dt-cite><dt-cite key="vda"></dt-cite><dt-cite key="tiny_diff_simulator"></dt-cite>, latent state models<dt-cite key="guen2020disentangling"></dt-cite><dt-cite key="schenck2018spnets"></dt-cite><dt-cite key="physics_as_inverse_graphics"></dt-cite><dt-cite key="heiden2019interactive"></dt-cite>, volumetric soft bodies<dt-cite key="chainqueen"></dt-cite><dt-cite key="mpm_displacement_continuity"></dt-cite><dt-cite key="differentiablecloth"></dt-cite><dt-cite key="difftaichi"></dt-cite>, as well as particle dynamics<dt-cite key="schenck2018spnets"></dt-cite><dt-cite key="li2018learning"></dt-cite><dt-cite key="li2020visual"></dt-cite><dt-cite key="difftaichi"></dt-cite>. In contrast, gradSim addresses a superset of simulation scenarios, by coupling the physics simulator  with a differentiable rendering pipeline. It also supports tetrahedral FEM-based hyperelasticity models to simulate deformable solids and thin-shells.</p>
+<p>Recent work on <strong>physics-based deep learning</strong> injects structure in the latent space of the dynamics using Lagrangian and Hamiltonian operators<dt-cite key="greydanus2019hamiltonian"></dt-cite><dt-cite key="Chen2020Symplectic"></dt-cite><dt-cite key="toth2019hamiltonian"></dt-cite><dt-cite key="sanchezgonzalez2019hamiltonian"></dt-cite><dt-cite key="cranmer2020lagrangian"></dt-cite><dt-cite key="zhong2019symplectic"></dt-cite>, by explicitly conserving physical quantities, or with ground truth supervision<dt-cite key="asenov2019vid2param"></dt-cite><dt-cite key="physics101"></dt-cite><dt-cite key="densephysnet"></dt-cite>.</p>
+<p>Sensor readings have been used to predicting the effects of forces applied to an object in models of <strong>learned</strong><dt-cite key="fragkiadaki2015learning"></dt-cite><dt-cite key="se3_nets"></dt-cite> and <strong>intuitive physics</strong><dt-cite key="ehsani2020force"></dt-cite><dt-cite key="mottaghi_newtonian_image_understanding"></dt-cite><dt-cite key="mottaghi_what_happens_if"></dt-cite><dt-cite key="gupta_block_worlds_revisited"></dt-cite><dt-cite key="unsupervised_intuitive_physics"></dt-cite><dt-cite key="fill_and_transfer"></dt-cite><dt-cite key="simulation_as_engine"></dt-cite><dt-cite key="computational_perception_of_scene_dynamics"></dt-cite><dt-cite key="neural_resimulation"></dt-cite><dt-cite key="image2mass"></dt-cite>. This also includes approaches that learn to model multi-object interactions<dt-cite key="visualinteractionnets"></dt-cite><dt-cite key="densephysnet"></dt-cite><dt-cite key="object_oriented_prediction_and_planning"></dt-cite><dt-cite key="long_term_predictor_physics"></dt-cite><dt-cite key="compositional_object_based"></dt-cite><dt-cite key="learning_to_poke"></dt-cite>. In many cases, intuitive physics approaches are limited in their prediction horizon and treatment of complex scenes, as they do not sufficiently accurately model the 3D geometry nor the object properties. <strong>System identification</strong> based on parameterized physics models<dt-cite key="physics_based_tracking"></dt-cite><dt-cite key="brubaker_physics_based_tracking"></dt-cite><dt-cite key="sysid_robotics"></dt-cite><dt-cite key="lmi_sysid"></dt-cite><dt-cite key="estimating-contact-dynamics"></dt-cite><dt-cite key="estimating-cloth-params-from-video"></dt-cite><dt-cite key="eccv-2002-physical-params-from-video"></dt-cite><dt-cite key="liu2005learning"></dt-cite><dt-cite key="neuroanimator"></dt-cite><dt-cite key="sutanto2020encoding"></dt-cite><dt-cite key="wang2020principles"></dt-cite><dt-cite key="learningelastic"></dt-cite> and inverse simulation<dt-cite key="inverse_simulation"></dt-cite> are closely related areas.</p>
+<p>There is a rich literature on <strong>neural image synthesis</strong>, but we focus on methods that model the 3D scene structure, including voxels<dt-cite key="platos_cave"></dt-cite><dt-cite key="paschalidou2019raynet"></dt-cite><dt-cite key="ed_smith_super_resolution"></dt-cite><dt-cite key="rendernet"></dt-cite>, meshes<dt-cite key="geometrics"></dt-cite><dt-cite key="wang2018pixel2mesh"></dt-cite><dt-cite key="groueix2018atlasnet"></dt-cite><dt-cite key="alhaija2018geometric"></dt-cite>, and implicit shapes<dt-cite key="xu2019disn"></dt-cite><dt-cite key="im_net"></dt-cite><dt-cite key="Michalkiewicz_2019_iccv"></dt-cite><dt-cite key="niemeyer2019differentiable"></dt-cite><dt-cite key="deep_sdf"></dt-cite><dt-cite key="mescheder2018occupancy"></dt-cite>. Generative models condition the rendering process on samples of the 3D geometry<dt-cite key="liao2019unsupervised"></dt-cite>. Latent factors determining 3D structure have also been learned in generative models<dt-cite key="infogan"></dt-cite><dt-cite key="gcnn"></dt-cite>. Additionally, implicit neural representations that leverage differentiable rendering have been proposed<dt-cite key="mildenhall2020nerf"></dt-cite><dt-cite key="mildenhall2019llff"></dt-cite> for realistic view synthesis. Many of these representations have become easy to manipulate through software frameworks like Kaolin<dt-cite key="jatavallabhula2019kaolin"></dt-cite>, Open3D<dt-cite key="open3d"></dt-cite>, and PyTorch3D<dt-cite key="pytorch3d"></dt-cite>.</p>
+<p><strong>Differentiable rendering</strong> allows for image gradients to be computed w.r.t. the scene geometry, camera, and lighting inputs. Variants based on the rasterization paradigm (NMR<dt-cite key="NMR"></dt-cite>, OpenDR<dt-cite key="opendr"></dt-cite>, SoftRas<dt-cite key="softras"></dt-cite>) blur the edges of scene triangles prior to image projection to remove discontinuities in the rendering signal. DIB-R<dt-cite key="dibr"></dt-cite> applies this idea to background pixels and proposes an interpolation-based rasterizer for foreground pixels. More sophisticated differentiable renderers can treat physics-based light transport processes<dt-cite key="redner"></dt-cite><dt-cite key="Mitsuba2"></dt-cite> by ray tracing, and more readily support higher-order effects such as shadows, secondary light bounces, and global illumination.</p>
+<hr>
+<h2>Conclusion</h2>
+<p>We presented gradSim, a versatile differentiable simulator that enables system identification from videos by differentiating through physical processes governing dyanmics and image formation. We demonstrated the benefits of such a holistic approach by estimating physical attributes for time-evolving scenes with complex dynamics and deformations, all from raw video observations. We also demonstrated the applicability of this efficient and accurate estimation scheme on end-to-end visuomotor control tasks. The latter case highlights gradSim's efficient integration with PyTorch, facilitating interoperability with existing machine learning modules. Interesting avenues for future work include extending our differentiable simulation to contact-rich motion, articulated bodies and higher-fidelity physically-based renderers -- doing so takes us closer to operating in the real-world.</p>
+</dt-article>
+<dt-appendix>
+<h2>Acknowledgments</h2>
+<p>KM and LP thank the IVADO fundamental research project grant for funding. FG thanks CIFAR for project funding under the Catalyst program. FS and LP acknowledge partial support from NSERC.</p>
+<p>This webpage theme was stolen from the <a href="https://learning-from-play.github.io/">learning-from-play</a> homepage, which in-turn was based on the <a href="https://distill.pub">Distill</a> <a href="https://github.com/distillpub/template">template</a>.</p>
+<h3 id="citation">Citation</h3>
+<p>For attribution in academic contexts, please cite this work as</p>
+<pre class="citation short">Jatavallabhula and Macklin et al., "gradSim: Differentiable simulation for system identification and visuomotor control", ICLR 2021.</pre>
+<p>BibTeX citation</p>
+<pre class="citation long">@article{gradsim,
+  title   = {gradSim: Differentiable simulation for system identification and visuomotor control},
+  author  = {Krishna Murthy Jatavallabhula and Miles Macklin and Florian Golemo and Vikram Voleti and Linda Petrini and Martin Weiss and Breandan Considine and Jerome Parent-Levesque and Kevin Xie and Kenny Erleben and Liam Paull and Florian Shkurti and Derek Nowrouzezahrai and Sanja Fidler},
+  journal = {International Conference on Learning Representations (ICLR)},
+  year    = {2021},
+  url     = {https://openreview.net/forum?id=c_E8kFWfhp0},
+  pdf     = {https://openreview.net/pdf?id=c_E8kFWfhp0},
+}</pre>
+</dt-appendix>
+</dt-appendix>
+</body>
+<script type="text/bibliography">
+
+% Efficientnet
+@inproceedings{efficientnet,
+  title = {EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks},
+  author = {Tan, Mingxing and Le, Quoc},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year = {2019},
+}
+
+
+% DiffTaichi
+@article{difftaichi,
+  title={DiffTaichi: Differentiable Programming for Physical Simulation},
+  author={Hu, Yuanming and Anderson, Luke and Li, Tzu-Mao and Sun, Qi and Carr, Nathan and Ragan-Kelley, Jonathan and Durand, Fr{\'e}do},
+  journal={International Conference on Learning Representations (ICLR)},
+  year={2020}
+}
+
+% Differentiable cloth simulation
+@inproceedings{differentiablecloth,
+  title={Differentiable Cloth Simulation for Inverse Problems},
+  author={Liang, Junbang and Lin, Ming and Koltun, Vladlen},
+  booktitle={NEURal Information Processing Systems (Neurips)},
+  year={2019}
+}
+
+% Scalable differentiable physics
+@article{scalable-diffphysics,
+  title={Scalable Differentiable Physics for Learning and Control},
+  author={Qiao, Yi-Ling and Liang, Junbang and Koltun, Vladlen and Lin, Ming C},
+  journal={International Conference on Machine Learning (ICML)},
+  year={2020}
+}
+
+@inproceedings{tangent,
+title = {Tangent: automatic differentiation using source code transformation in Python},
+author  = {Bart van Merriënboer and Alexander B Wiltschko and Dan Moldovan},
+year  = {2018},
+booktitle = {NEURal Information Processing Systems (Neurips)},
+}
+
+@inproceedings{pytorch,
+title = {PyTorch: An Imperative Style, High-Performance Deep Learning Library},
+author = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and Desmaison, Alban and Kopf, Andreas and Yang, Edward and DeVito, Zachary and Raison, Martin and Tejani, Alykhan and Chilamkurthy, Sasank and Steiner, Benoit and Fang, Lu and Bai, Junjie and Chintala, Soumith},
+booktitle = {NEURal Information Processing Systems (Neurips)},
+year = {2019},
+}
+
+@misc{tensorflow,
+title={TensorFlow: Large-Scale Machine Learning on Heterogeneous Systems},
+url={http://tensorflow.org/},
+note={Software available from tensorflow.org},
+author={
+    Mart\'{\i}n~Abadi and
+    Ashish~Agarwal and
+    Paul~Barham and
+    Eugene~Brevdo and
+    Zhifeng~Chen and
+    Craig~Citro and
+    Greg~S.~Corrado and
+    Andy~Davis and
+    Jeffrey~Dean and
+    Matthieu~Devin and
+    Sanjay~Ghemawat and
+    Ian~Goodfellow and
+    Andrew~Harp and
+    Geoffrey~Irving and
+    Michael~Isard and
+    Yangqing Jia and
+    Rafal~Jozefowicz and
+    Lukasz~Kaiser and
+    Manjunath~Kudlur and
+    Josh~Levenberg and
+    Dan~Man\'{e} and
+    Rajat~Monga and
+    Sherry~Moore and
+    Derek~Murray and
+    Chris~Olah and
+    Mike~Schuster and
+    Jonathon~Shlens and
+    Benoit~Steiner and
+    Ilya~Sutskever and
+    Kunal~Talwar and
+    Paul~Tucker and
+    Vincent~Vanhoucke and
+    Vijay~Vasudevan and
+    Fernanda~Vi\'{e}gas and
+    Oriol~Vinyals and
+    Pete~Warden and
+    Martin~Wattenberg and
+    Martin~Wicke and
+    Yuan~Yu and
+    Xiaoqiang~Zheng},
+  year={2015},
+}
+
+@misc{jax,
+  author = {James Bradbury and Roy Frostig and Peter Hawkins and Matthew James Johnson and Chris Leary and Dougal Maclaurin and Skye Wanderman-Milne},
+  title = {JAX: composable transformations of Python+NumPy programs},
+  url = {http://github.com/google/jax},
+  version = {0.1.55},
+  year = {2018},
+}
+
+@misc{autograd,
+    author = {Dougal Maclaurin and David Duvenaud and Matt Johnson and Jamie Townsend},
+    title = {Autograd},
+    url = {https://github.com/HIPS/autograd},
+    year = {2015},
+}
+
+@inproceedings{kirk2007nvidia,
+  title={NVIDIA CUDA software and GPU parallel computing architecture},
+  author={Kirk, David and others},
+  booktitle={ISMM},
+  volume={7},
+  pages={103--104},
+  year={2007}
+}
+
+@article{margossian2019review,
+  title={A review of automatic differentiation and its efficient implementation},
+  author={Margossian, Charles C},
+  journal={Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery},
+  volume={9},
+  number={4},
+  pages={e1305},
+  year={2019},
+  publisher={Wiley Online Library}
+}
+
+@book{hairer2006geometric,
+  title={Geometric numerical integration: structure-preserving algorithms for ordinary differential equations},
+  author={Hairer, Ernst and Lubich, Christian and Wanner, Gerhard},
+  volume={31},
+  year={2006},
+  publisher={Springer Science \& Business Media}
+}
+
+@inproceedings{todorov2014convex,
+  title={Convex and analytically-invertible dynamics with contacts and constraints: Theory and implementation in MuJoCo},
+  author={Todorov, Emanuel},
+  booktitle={International Conference on Robotics and Automation (ICRA)},
+  year={2014},
+}
+
+@inproceedings{bridson2005simulation,
+  title={Simulation of clothing with folds and wrinkles},
+  author={Bridson, Robert and Marino, Sebastian and Fedkiw, Ronald},
+  booktitle={ACM SIGGRAPH 2005 Courses},
+  year={2005}
+}
+
+@inproceedings{sifakis2012fem,
+  title={FEM simulation of 3D deformable solids: a practitioner's guide to theory, discretization and model reduction},
+  author={Sifakis, Eftychios and Barbic, Jernej},
+  booktitle={ACM SIGGRAPH 2012 courses},
+  year={2012}
+}
+
+@article{smith2018stable,
+  title={Stable neo-hookean flesh simulation},
+  author={Smith, Breannan and Goes, Fernando De and Kim, Theodore},
+  journal={ACM Transactions on Graphics (TOG)},
+  volume={37},
+  number={2},
+  pages={1--15},
+  year={2018},
+  publisher={ACM New York, NY, USA}
+}
+
+% Stable fluids
+@inproceedings{stablefluids,
+  title={Stable fluids},
+  author={Stam, Jos},
+  booktitle={Proceedings of the 26th annual conference on Computer graphics and interactive techniques},
+  pages={121--128},
+  year={1999}
+}
+
+% Smoke simulation
+@inproceedings{smokesimulation,
+  title={Visual simulation of smoke},
+  author={Fedkiw, Ronald and Stam, Jos and Jensen, Henrik Wann},
+  booktitle={Proceedings of the 28th annual conference on Computer graphics and interactive techniques},
+  pages={15--22},
+  year={2001}
+}
+
+% Physics101
+@inproceedings{physics101,
+  title={Physics 101: Learning physical object properties from unlabeled videos},
+  author={Wu, Jiajun and Lim, Joseph J and Zhang, Hongyi and Tenenbaum, Joshua B and Freeman, William T},
+  booktitle={British Machine Vision Conference (BMVC)},
+  year={2016}
+}
+
+% Galileo
+@inproceedings{galileo,
+  title={Galileo: Perceiving physical object properties by integrating a physics engine with deep learning},
+  author={Wu, Jiajun and Yildirim, Ilker and Lim, Joseph J and Freeman, William T and Tenenbaum, Joshua B},
+  booktitle={NEURal Information Processing Systems (Neurips)},
+  year={2015}
+}
+
+% DensePhysNet
+@inproceedings{densephysnet,
+title = {DensePhysNet: Learning Dense Physical Object Representations via Multi-step Dynamic Interactions},
+author = {Zhenjia Xu and Jiajun Wu and Andy Zeng and Joshua B. Tenenbaum and Shuran Song},
+booktitle = {Robotics: Science and Systems (RSS)},
+year = {2019},
+}
+
+% PushNet
+@inproceedings{PushNet,
+  title={Push-Net : Deep Planar Pushing for Objects with Unknown Physical Properties},
+  author={Jue Kun Li and David Hsu and Wee Sun Lee},
+  booktitle={Robotics: Science and Systems (RSS)},
+  year={2018}
+}
+
+% DexNet2
+@inproceedings{dexnet2,
+  title={Dex-Net 2.0: Deep Learning to Plan Robust Grasps with Synthetic Point Clouds and Analytic Grasp Metrics},
+  author={Mahler, Jeffrey and Liang, Jacky and Niyaz, Sherdil and Laskey, Michael and Doan, Richard and Liu, Xinyu and Ojea, Juan Aparicio and Goldberg, Ken},
+  booktitle={Robotics: Science and Systems (RSS)},
+  year={2017}
+}
+
+% Visual interaction networks
+@inproceedings{visualinteractionnets,
+title = {Visual Interaction Networks: Learning a Physics Simulator from Video},
+author = {Watters, Nicholas and Zoran, Daniel and Weber, Theophane and Battaglia, Peter and Pascanu, Razvan and Tacchetti, Andrea},
+booktitle = {NEURal Information Processing Systems (Neurips)},
+year = {2017},
+}
+
+% Learning to poke by poking
+@inproceedings{poking,
+  title={Learning to poke by poking: Experiential learning of intuitive physics},
+  author={Agrawal, Pulkit and Nair, Ashvin V and Abbeel, Pieter and Malik, Jitendra and Levine, Sergey},
+  booktitle={NEURal Information Processing Systems (Neurips)},
+  year={2016}
+}
+
+% Learning billiards
+@article{learningbilliards,
+  title={Learning visual predictive models of physics for playing billiards},
+  author={Fragkiadaki, Katerina and Agrawal, Pulkit and Levine, Sergey and Malik, Jitendra},
+  journal={International Conference on Learning Representations (ICLR)},
+  year={2016}
+}
+
+@inproceedings{schulman2013tracking,
+  title={Tracking deformable objects with point clouds},
+  author={Schulman, John and Lee, Alex and Ho, Jonathan and Abbeel, Pieter},
+  booktitle={International Conference on Robotics and Automation (ICRA)},
+  year={2013},
+}
+
+% Physics as inverse graphics
+@article{physicsasinversegraphics,
+  title={Physics-as-inverse-graphics: Joint unsupervised learning of objects and physics from video},
+  author={Jaques, Miguel and Burke, Michael and Hospedales, Timothy},
+  journal={International Conference on Learning Representations (ICLR)},
+  year={2020}
+}
+
+% BayesSim
+@article{bayessim,
+  title={Bayessim: adaptive domain randomization via probabilistic inference for robotics simulators},
+  author={Ramos, Fabio and Possas, Rafael Carvalhaes and Fox, Dieter},
+  journal= {Robotics: Science and Systems (RSS)},
+  year={2019}
+}
+
+% Robot simulation tools survey
+@inproceedings{robotsimulationsurvey,
+  title={Simulation tools for model-based robotics: Comparison of {Bullet, Havok, MuJoCo, ODE, and PhysX}},
+  author={Erez, Tom and Tassa, Yuval and Todorov, Emanuel},
+  booktitle={International Conference on Robotics and Automation (ICRA)},
+  year={2015},
+}
+
+% PyBullet
+@MISC{pybullet,
+author =   {Erwin Coumans and Yunfei Bai},
+title =    {PyBullet, a Python module for physics simulation for games, robotics and machine learning},
+howpublished = {\url{http://pybullet.org}},
+year = {2016--2019}
+}
+
+% NeuralODE
+@inproceedings{neuralode,
+  title={Neural ordinary differential equations},
+  author={Chen, Tian Qi and Rubanova, Yulia and Bettencourt, Jesse and Duvenaud, David K},
+  booktitle={NEURal Information Processing Systems (Neurips)},
+  year={2018}
+}
+
+% NMR
+@inproceedings{NMR,
+    title={Neural 3D Mesh Renderer},
+    author={Kato, Hiroharu and Ushiku, Yoshitaka and Harada, Tatsuya},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2018},
+}
+
+% SoftRas
+@article{softras,
+  title={Soft Rasterizer: A Differentiable Renderer for Image-based 3D Reasoning},
+  author={Liu, Shichen and Li, Tianye and Chen, Weikai and Li, Hao},
+  journal={International Conference on Computer Vision (ICCV)},
+  year={2019}
+}
+
+% DIB-R
+@article{dibr,
+     title={Learning to Predict 3D Objects with an Interpolation-based Differentiable Renderer},
+     author={Chen, Wenzheng and Gao, Jun and Ling, Huan and Smith, Edward and Lehtinen, Jaakko and Jacobson, Alec and Fidler, Sanja},
+     journal={NEURal Information Processing Systems (Neurips)},
+     year={2019}
+}
+
+% Redner
+@article{redner,
+    title = {Differentiable Monte Carlo Ray Tracing through Edge Sampling},
+    author = {Li, Tzu-Mao and Aittala, Miika and Durand, Fr{\'e}do and Lehtinen, Jaakko},
+    journal = {SIGGRAPH Asia},
+    volume = {37},
+    number = {6},
+    pages = {222:1--222:11},
+    year = {2018}
+}
+
+% Mitsuba2
+@article{Mitsuba2,
+  author = {Merlin Nimier-David and Delio Vicini and Tizian Zeltner and Wenzel Jakob},
+  title = {Mitsuba 2: A Retargetable Forward and Inverse Renderer},
+  journal = {Transactions on Graphics (Proceedings of SIGGRAPH Asia)},
+  volume = {38},
+  number = {6},
+  year = {2019},
+}
+
+@inproceedings{vda,
+  title={Learning to See Physics via Visual De-animation},
+  author={Wu, Jiajun and Lu, Erika and Kohli, Pushmeet and Freeman, William T and Tenenbaum, Joshua B},
+  booktitle={NEURal Information Processing Systems (Neurips)},
+  year={2017}
+}
+
+@inproceedings{nsd,
+  title={Neural Scene De-rendering},
+  author={Wu, Jiajun and Tenenbaum, Joshua B and Kohli, Pushmeet},
+  booktitle={Computer Vision and Pattern Recognition (CVPR)},
+  year={2017}
+}
+
+% Neural dynamical systems
+@article{nds,
+  title={Neural Dynamical Systems: Balancing Structure and Flexibility in Physical Prediction},
+  author={Mehta, Viraj and Char, Ian and Neiswanger, Willie and Chung, Youngseog and Nelson, Andrew Oakleigh and Boyer, Mark D and Kolemen, Egemen and Schneider, Jeff},
+  journal={ICLR Workshops},
+  year={2020}
+}
+
+@article{learning_to_poke,
+  author    = {Pulkit Agrawal and
+               Ashvin Nair and
+               Pieter Abbeel and
+               Jitendra Malik and
+               Sergey Levine},
+  title     = {Learning to Poke by Poking: Experiential Learning of Intuitive Physics},
+  journal   = {NEURal Information Processing Systems (Neurips)},
+  year      = {2016},
+}
+
+@article {simulation_as_engine,
+  author = {Battaglia, Peter W. and Hamrick, Jessica B. and Tenenbaum, Joshua B.},
+  title = {Simulation as an engine of physical scene understanding},
+  volume = {110},
+  number = {45},
+  pages = {18327--18332},
+  year = {2013},
+  doi = {10.1073/pnas.1306572110},
+  publisher = {National Academy of Sciences},
+  issn = {0027-8424},
+  journal = {Proceedings of the National Academy of Sciences}
+}
+
+
+@article {inverse_graphics_face_processing,
+  author = {Yildirim, Ilker and Belledonne, Mario and Freiwald, Winrich and Tenenbaum, Josh},
+  title = {Efficient inverse graphics in biological face processing},
+  volume = {6},
+  number = {10},
+  elocation-id = {eaax5979},
+  year = {2020},
+  doi = {10.1126/sciadv.aax5979},
+  publisher = {American Association for the Advancement of Science},
+  journal = {Science Advances}
+}
+
+@inproceedings{analysis_by_synthesis_in_vision,
+author = {Yildirim, Ilker and Kulkarni, Tejas and Freiwald, Winrich and Tenenbaum, Joshua},
+year = {2015},
+title = {Efficient analysis-by-synthesis in vision: A computational framework, behavioral tests, and comparison with neural representations},
+booktitle = {CogSci},
+}
+
+@inproceedings{physics_based_tracking,
+author = {Salzmann, Mathieu and Urtasun, Raquel},
+title = {Physically-Based Motion Models for 3D Tracking: A Convex Formulation},
+year = {2011},
+booktitle = {International Conference on Computer Vision (ICCV)},
+}
+
+@inproceedings{mottaghi_what_happens_if,
+  author    = {Roozbeh Mottaghi and
+               Mohammad Rastegari and
+               Abhinav Gupta and
+               Ali Farhadi},
+  title     = {"What happens if..." Learning to Predict the Effect of Forces in Images},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2016},
+}
+  
+
+@inproceedings{Mottaghi_2016_cvpr,
+author = {Mottaghi, Roozbeh and Bagherinezhad, Hessam and Rastegari, Mohammad and Farhadi, Ali},
+title = {Newtonian Scene Understanding: Unfolding the Dynamics of Objects in Static Images},
+booktitle = {Computer Vision and Pattern Recognition (CVPR)},
+year = {2016}
+}
+
+@inproceedings{block_towers_by_example,
+author = {Lerer, Adam and Gross, Sam and Fergus, Rob},
+title = {Learning Physical Intuition of Block Towers by Example},
+year = {2016},
+booktitle = {International Conference on Machine Learning (ICML)},
+}
+  
+
+@inproceedings{kulkarni_picture,  
+author={T. D. Kulkarni and P. Kohli and J. B. Tenenbaum and V. Mansinghka},
+booktitle={Computer Vision and Pattern Recognition (CVPR)},   
+title={Picture: A probabilistic programming language for scene perception},
+year={2015},
+}
+
+@inproceedings{gupta_block_worlds_revisited,
+   author={Abhinav Gupta and Alexei A. Efros and Martial Hebert},
+   title={Blocks World Revisited: Image Understanding Using Qualitative Geometry and Mechanics},
+   booktitle={European Conference on Computer Vision (ECCV)},
+   year={2010},
+}
+
+@article{long_term_predictor_physics,
+  author = {S{\'{e}}bastien Ehrhardt and
+               Aron Monszpart and
+               Niloy J. Mitra and
+               Andrea Vedaldi},
+  title = {Learning a Physical Long-term Predictor},
+  journal = {arXiv},
+  year = {2017}
+}
+
+@inproceedings {causal_and_compositional_generative_models,
+  title = {Causal and compositional generative models in online perception},
+  year = {2017},
+  author = {Ilker Yildirim and Michael Janner and Mario Belledonne and Christian Wallraven and W. A. Freiwald and Joshua B. Tenenbaum},
+  booktitle = {CogSci},
+}
+
+@article {gcnn,
+  author = {Eslami, S. M. Ali and Jimenez Rezende, Danilo and Besse, Frederic and Viola, Fabio and Morcos, Ari S. and Garnelo, Marta and Ruderman, Avraham and Rusu, Andrei A. and Danihelka, Ivo and Gregor, Karol and Reichert, David P. and Buesing, Lars and Weber, Theophane and Vinyals, Oriol and Rosenbaum, Dan and Rabinowitz, Neil and King, Helen and Hillier, Chloe and Botvinick, Matt and Wierstra, Daan and Kavukcuoglu, Koray and Hassabis, Demis},
+  title = {Neural scene representation and rendering},
+  year = {2018},
+  journal = {Science}
+}
+
+@inproceedings{zhong2019symplectic,
+    title={Symplectic ODE-Net: Learning Hamiltonian Dynamics with Control},
+    author={Yaofeng Desmond Zhong and Biswadip Dey and Amit Chakraborty},
+    booktitle={International Conference on Learning Representations (ICLR)},
+    year={2020},
+}
+
+@inproceedings{sanchezgonzalez2019hamiltonian,
+    title={Hamiltonian Graph Networks with ODE Integrators},
+    author={Alvaro Sanchez-Gonzalez and Victor Bapst and Kyle Cranmer and Peter Battaglia},
+    booktitle={arXiv},
+    year={2019},
+}
+
+@inproceedings{sutanto2020encoding,
+    title={Encoding Physical Constraints in Differentiable Newton-Euler Algorithm},
+    author={Giovanni Sutanto and Austin S. Wang and Yixin Lin and Mustafa Mukadam and Gaurav S. Sukhatme and Akshara Rai and Franziska Meier},
+    booktitle={Learning for Dynamical systems and Control (L4DC)},
+    year={2020},
+}
+
+@inproceedings{guen2020disentangling,
+    title={Disentangling Physical Dynamics from Unknown Factors for Unsupervised Video Prediction},
+    author={Vincent Le Guen and Nicolas Thome},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2020},
+}
+
+@inproceedings{li2020visual,
+    title={Visual Grounding of Learned Physical Models},
+    author={Yunzhu Li and Toru Lin and Kexin Yi and Daniel Bear and Daniel L. K. Yamins and Jiajun Wu and Joshua B. Tenenbaum and Antonio Torralba},
+    booktitle={International Conference on Machine Learning (ICML)},
+    year={2020},
+}
+
+@inproceedings{toth2019hamiltonian,
+    title={Hamiltonian Generative Networks},
+    author={Peter Toth and Danilo Jimenez Rezende and Andrew Jaegle and Sébastien Racanière and Aleksandar Botev and Irina Higgins},
+    booktitle={International Conference on Learning Representations (ICLR)},
+    year={2020},
+}
+
+@inproceedings{perception_prediction_networks,
+  author    = {David Zheng and
+               Vinson Luo and
+               Jiajun Wu and
+               Joshua B. Tenenbaum},
+  title     = {Unsupervised Learning of Latent Physical Properties Using Perception-Prediction
+               Networks},
+  booktitle   = {Uncertainty in AI},
+  year      = {2018},
+}
+
+@inproceedings{object_inertia_params,
+author={ {Yong Yu} and T. {Arima} and S. {Tsujio}},  
+booktitle={International Conference on Robotics and Automation (ICRA)},
+title={Estimation of Object Inertia Parameters on Robot Pushing Operation},  
+year={2005},
+}
+
+@inproceedings{song2020learning,
+    title={Learning to Slide Unknown Objects with Differentiable Physics Simulations},
+    author={Changkyu Song and Abdeslam Boularias},
+    booktitle={Robotics: Science and Systems (RSS)},
+    year={2020},
+}
+
+@article{asenov2019vid2param,
+    title={Vid2{P}aram: Modelling of Dynamics Parameters from Video},
+    author={Martin Asenov and Michael Burke and Daniel Angelov and Todor Davchev and Kartic Subr and Subramanian Ramamoorthy},
+    journal={Robotics and Automation Letters (RAL)},
+    year={2019},
+}
+
+@inproceedings{song2020identifying,
+    title={Identifying Mechanical Models through Differentiable Simulations},
+    author={Changkyu Song and Abdeslam Boularias},
+    booktitle={Learning for Dynamical Systems and Control (L4DC)},
+    year={2020},
+}
+
+@article{mottaghi_newtonian_image_understanding,
+  author    = {Roozbeh Mottaghi and
+               Hessam Bagherinezhad and
+               Mohammad Rastegari and
+               Ali Farhadi},
+  title     = {Newtonian Image Understanding: Unfolding the Dynamics of Objects in
+               Static Images},
+  journal   = {Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2015},
+}
+
+
+@article{curious_robot,
+  author    = {Lerrel Pinto and
+               Dhiraj Gandhi and
+               Yuanfeng Han and
+               Yong{-}Lae Park and
+               Abhinav Gupta},
+  title     = {The Curious Robot: Learning Visual Representations via Physical Interactions},
+  journal   = {European Conference on Computer Vision (ECCV)},
+  year      = {2016},
+}
+  
+
+@INPROCEEDINGS{patch_to_the_future,  
+  author={J. {Walker} and A. {Gupta} and M. {Hebert}},  
+  booktitle={Computer Vision and Pattern Recognition (CVPR)},
+  title={Patch to the Future: Unsupervised Visual Prediction},   
+  year={2014},
+}
+
+@INPROCEEDINGS{fill_and_transfer,  
+  author={L. Yu and N. Duncan and S. Yeung},
+  booktitle={International Conference on Computer Vision (ICCV)},
+  title={Fill and Transfer: A Simple Physics-Based Approach for Containability Reasoning},   
+  year={2015},
+}
+
+@article{approx_probabilistic_simulation,
+  author    = {Renqiao Zhang and
+               Jiajun Wu and
+               Chengkai Zhang and
+               William T. Freeman and
+               Joshua B. Tenenbaum},
+  title     = {A Comparative Evaluation of Approximate Probabilistic Simulation and
+               Deep Neural Networks as Accounts of Human Physical Scene Understanding},
+  journal   = {CogSci},
+  year      = {2016},
+}
+
+@article{computational_perception_of_scene_dynamics,
+title = "The Computational Perception of Scene Dynamics",
+journal = "Computer Vision and Image Understanding",
+volume = "65",
+number = "2",
+pages = "113 - 128",
+year = "1997",
+author = "Richard Mann and Allan Jepson and Jeffrey Mark Siskind",
+}
+
+@article{compositional_object_based,
+  author    = {Michael B. Chang and
+               Tomer Ullman and
+               Antonio Torralba and
+               Joshua B. Tenenbaum},
+  title     = {A Compositional Object-Based Approach to Learning Physical Dynamics},
+  journal   = {International Conference on Learning Representations (ICLR)},
+  year      = {2016},
+}
+
+@article{se3_nets,
+  author    = {Arunkumar Byravan and
+               Dieter Fox},
+  title     = {SE3-Nets: Learning Rigid Body Motion using Deep Neural Networks},
+  journal   = {International Conference on Robotics and Automation (ICRA)},
+  year      = {2017},
+}
+
+
+@inproceedings{fragkiadaki2015learning,
+    title={Learning Visual Predictive Models of Physics for Playing Billiards},
+    author={Katerina Fragkiadaki and Pulkit Agrawal and Sergey Levine and Jitendra Malik},
+    booktitle={International Conference on Learning Representations (ICLR)},
+    year={2016},
+}
+
+@inproceedings{tracking_deformable_objects_with_pointclouds,  
+  author={J. Schulman and A. Lee and J. Ho and P. Abbeel},
+  booktitle={International Conference on Robotics and Automation (ICRA)},
+  title={Tracking deformable objects with point clouds},   
+  year={2013},
+}
+
+
+
+@inproceedings{image2mass,
+  title =    {image2mass: Estimating the Mass of an Object from Its Image},
+  author =   {Trevor Standley and Ozan Sener and Dawn Chen and Silvio Savarese},
+  booktitle = {Conference on Robot Learning},
+  year =   {2017},
+}
+
+@inproceedings{neural_resimulation,
+author = {Innamorati, Carlo and Russell, Bryan and Kaufman, Danny and Mitra, Niloy},
+year = {2019},
+title = {Neural Re-Simulation for Generating Bounces in Single Images},
+booktitle = {International Conference on Computer Vision (ICCV)},
+}
+
+@article{physics_as_inverse_graphics,
+  author    = {Miguel Jaques and
+               Michael Burke and
+               Timothy M. Hospedales},
+  title     = {Physics-as-Inverse-Graphics: Joint Unsupervised Learning of Objects and Physics from Video},
+  journal   = {International Conference on Learning Representations (ICLR)},
+  year      = {2020},
+}
+
+@article{differentiable_physics_engine_for_robotics,
+  author    = {Jonas Degrave and
+               Michiel Hermans and
+               Joni Dambre and
+               Francis Wyffels},
+  title     = {A Differentiable Physics Engine for Deep Learning in Robotics},
+  journal   = {NEURal Information Processing Systems (Neurips)},
+  year      = {2016},
+}
+
+
+@article{unsupervised_intuitive_physics,
+  author    = {S{\'{e}}bastien Ehrhardt and
+               Aron Monszpart and
+               Niloy J. Mitra and
+               Andrea Vedaldi},
+  title     = {Unsupervised Intuitive Physics from Visual Observations},
+  journal   = {Asian Conference on Computer Vision (ACCV)},
+  year      = {2018},
+}
+
+
+@article{object_oriented_prediction_and_planning,
+  author    = {Michael Janner and
+               Sergey Levine and
+               William T. Freeman and
+               Joshua B. Tenenbaum and
+               Chelsea Finn and
+               Jiajun Wu},
+  title     = {Reasoning About Physical Interactions with Object-Oriented Prediction
+               and Planning},
+  journal   = {International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+}
+
+
+@article{mpm_displacement_continuity,
+  author = {Hu, Yuanming and Fang, Yu and Ge, Ziheng and Qu, Ziyin and Zhu, Yixin and Pradhana, Andre and Jiang, Chenfanfu},
+  title = {A Moving Least Squares Material Point Method with Displacement Discontinuity and Two-Way Rigid Body Coupling},
+  year = {2018},
+  issue_date = {August 2018},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {37},
+  number = {4},
+  journal = {ACM Transactions on Graphics (TOG)},
+}
+  
+@article{unsupervised_learning_for_physical_interaction_through_video,
+  author    = {Chelsea Finn and
+               Ian J. Goodfellow and
+               Sergey Levine},
+  title     = {Unsupervised Learning for Physical Interaction through Video Prediction},
+  journal   = {NEURal Information Processing Systems (Neurips)},
+  year      = {2016},
+}
+
+
+@article{cobra,
+  author    = {Nicholas Watters and
+               Loic Matthey and
+               Matko Bosnjak and
+               Christopher P. Burgess and
+               Alexander Lerchner},
+  title     = {COBRA: Data-Efficient Model-Based RL through Unsupervised Object
+               Discovery and Curiosity-Driven Exploration},
+  journal   = {arXiv},
+  year      = {2019},
+}
+
+
+@inproceedings{Toussaint-RSS-18, 
+    author = {Marc Toussaint and Kelsey Allen and Kevin Smith and Joshua Tenenbaum}, 
+    title = {Differentiable Physics and Stable Modes for Tool-Use and Manipulation Planning}, 
+    booktitle = {Robotics: Science and Systems (RSS)}, 
+    year = {2018},
+}
+
+@inproceedings{differentiable_lcp_kolter,
+title = {End-to-End Differentiable Physics for Learning and Control},
+author = {de Avila Belbute-Peres, Filipe and Smith, Kevin and Allen, Kelsey and Tenenbaum, Josh and Kolter, J. Zico},
+booktitle = {NEURal Information Processing Systems (Neurips)},
+year = {2018},
+}
+
+
+@inproceedings{lutter2019deep,
+    title={Deep Lagrangian Networks: Using Physics as Model Prior for Deep Learning},
+    author={Michael Lutter and Christian Ritter and Jan Peters},
+    booktitle={International Conference on Learning Representations (ICLR)},
+    year={2019},
+}
+
+@inproceedings{cranmer2020lagrangian,
+    title={Lagrangian Neural Networks},
+    author={Miles Cranmer and Sam Greydanus and Stephan Hoyer and Peter Battaglia and David Spergel and Shirley Ho},
+    booktitle={ICLR Workshops},
+    year={2020},
+}
+
+@inproceedings{wang2018pixel2mesh,
+    title={Pixel2Mesh: Generating 3D Mesh Models from Single RGB Images},
+    author={Nanyang Wang and Yinda Zhang and Zhuwen Li and Yanwei Fu and Wei Liu and Yu-Gang Jiang},
+    booktitle={European Conference on Computer Vision (ECCV)},
+    year={2018},
+}
+
+@inproceedings{greydanus2019hamiltonian,
+    title={Hamiltonian Neural Networks},
+    author={Sam Greydanus and Misko Dzamba and Jason Yosinski},
+    booktitle={NEURal Information Processing Systems (Neurips)},
+    year={2019},
+}
+
+@inproceedings{groueix2018atlasnet,
+    title={AtlasNet: A Papier-Mâché Approach to Learning 3D Surface Generation},
+    author={Thibault Groueix and Matthew Fisher and Vladimir G. Kim and Bryan C. Russell and Mathieu Aubry},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2018},
+}
+
+@inproceedings{mescheder2018occupancy,
+    title={Occupancy Networks: Learning 3D Reconstruction in Function Space},
+    author={Lars Mescheder and Michael Oechsle and Michael Niemeyer and Sebastian Nowozin and Andreas Geiger},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2019},
+}
+
+@inproceedings{niemeyer2019differentiable,
+    title={Differentiable Volumetric Rendering: Learning Implicit 3D Representations without 3D Supervision},
+    author={Michael Niemeyer and Lars Mescheder and Michael Oechsle and Andreas Geiger},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2020},
+}
+
+@inproceedings{liao2019unsupervised,
+    title={Towards Unsupervised Learning of Generative Models for 3D Controllable Image Synthesis},
+    author={Yiyi Liao and Katja Schwarz and Lars Mescheder and Andreas Geiger},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2019},
+}
+
+@inproceedings{paschalidou2019raynet,
+    title={RayNet: Learning Volumetric 3D Reconstruction with Ray Potentials},
+    author={Despoina Paschalidou and Ali Osman Ulusoy and Carolin Schmitt and Luc van Gool and Andreas Geiger},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2019},
+}
+
+@inproceedings{alhaija2018geometric,
+    title={Geometric Image Synthesis},
+    author={Hassan Abu Alhaija and Siva Karthik Mustikovela and Andreas Geiger and Carsten Rother},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2018},
+}
+
+
+@inproceedings{choy20163d,
+  title={3D-R2N2: A Unified Approach for Single and Multi-view 3D Object Reconstruction},
+  author={Choy, Christopher B and Xu, Danfei and Gwak, JunYoung and Chen, Kevin and Savarese, Silvio},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year={2016}
+}
+
+@inproceedings{ehsani2020force,
+     title={Use the Force, Luke! Learning to Predict Physical Forces by Simulating Effects},
+      author={Ehsani, Kiana and Tulsiani, Shubham and Gupta, Saurabh and Farhadi, Ali and Gupta, Abhinav},
+     booktitle={Computer Vision and Pattern Recognition (CVPR)},
+     year={2020}
+}
+
+@inProceedings{liang2019differentiable,
+  title={Differentiable Cloth Simulation for Inverse Problems},
+  author = {Junbang Liang and Ming C. Lin and Vladlen Koltun},
+  booktitle={NEURal Information Processing Systems (Neurips)},
+  year={2019}
+}
+
+@article{learningelastic,
+  author    = {Bin Wang and
+               Paul G. Kry and
+               Yuanmin Deng and
+               Uri M. Ascher and
+               Hui Huang and
+               Baoquan Chen},
+  title     = {Neural Material: Learning Elastic Constitutive Material and Damping
+               Models from Sparse Data},
+  journal   = {arXiv},
+  year      = {2018},
+}
+
+@inproceedings{Chen2020Symplectic,
+  title={Symplectic Recurrent Neural Networks},
+  author={Zhengdao Chen and Jianyu Zhang and Martin Arjovsky and Léon Bottou},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2020},
+}
+
+@manual{tiny_diff_simulator,
+      title  = "Tiny Differentiable Simulator",
+      author = "Google Research",
+      url    = "https://github.com/google-research/tiny-differentiable-simulator",
+      year   = "2020 (accessed May 15, 2020)"
+}
+
+
+@article{inverse_simulation,
+title = "The inverse simulation approach: a focused review of methods and applications",
+journal = "Mathematics and Computers in Simulation",
+volume = "53",
+number = "4",
+pages = "239 - 247",
+year = "2000",
+issn = "0378-4754",
+author = "D.J. Murray-Smith",
+}   
+   
+@inproceedings{schenck2018spnets,
+    title={SPNets: Differentiable Fluid Dynamics for Deep Neural Networks},
+    author={Connor Schenck and Dieter Fox},
+    booktitle={Conference on Robot Learning},
+    year={2018},
+}
+
+@inproceedings{ajay2018augmenting,
+    title={Augmenting Physical Simulators with Stochastic Neural Networks: Case Study of Planar Pushing and Bouncing},
+    author={Anurag Ajay and Jiajun Wu and Nima Fazeli and Maria Bauza and Leslie P. Kaelbling and Joshua B. Tenenbaum and Alberto Rodriguez},
+    booktitle={International Conference on Intelligent Robots and Systems (IROS)},
+    year={2018},
+}
+
+@inproceedings{li2018learning,
+    Title={Learning Particle Dynamics for Manipulating Rigid Bodies, Deformable Objects, and Fluids},
+    Author={Li, Yunzhu and Wu, Jiajun and Tedrake, Russ and Tenenbaum, Joshua B and Torralba, Antonio},
+    Booktitle = {International Conference on Learning Representations (ICLR)},
+    Year = {2019}
+}
+
+@inproceedings{cranmer2019frontier,
+    title={The frontier of simulation-based inference},
+    author={Kyle Cranmer and Johann Brehmer and Gilles Louppe},
+    booktitle={National Academy of Sciences (NAS)},
+    year={2020},
+}
+
+
+@book{sysid_robotics,
+    title = {Modelling and Identification in Robotics},
+    author = {Krzysztof Kozlowski},
+    isbn = {978-1-4471-1139-9},
+    series = {Advances in Industrial Control},
+    year = {1998},
+    publisher = {Springer, London},
+}
+
+@ARTICLE{lmi_sysid,  
+  author={P. M. Wensing and S. Kim and J. E. Slotine},
+  journal={IEEE Robotics and Automation Letters},
+  title={Linear Matrix Inequalities for Physically Consistent Inertial Parameter Identification: A Statistical Perspective on the Mass Distribution},   
+  year={2018},  
+  volume={3},  
+  number={1},  
+  pages={60-67},
+}
+
+@inproceedings{chainqueen,
+  author    = {Yuanming Hu and
+               Jiancheng Liu and
+               Andrew Spielberg and
+               Joshua B. Tenenbaum and
+               William T. Freeman and
+               Jiajun Wu and
+               Daniela Rus and
+               Wojciech Matusik},
+  title     = {ChainQueen: A Real-Time Differentiable Physical Simulator for Soft Robotics},
+  booktitle = {International Conference on Robotics and Automation (ICRA)},
+  year      = {2019},
+}
+
+@article{brubaker_physics_based_tracking,
+author = {Brubaker, Marcus and Fleet, David and Hertzmann, Aaron},
+year = {2010},
+month = {03},
+pages = {140-155},
+title = {Physics-Based Person Tracking Using The Anthropomorphic Walker},
+volume = {87},
+journal = {International Journal on Computer Vision (IJCV)},
+}
+
+@inproceedings{deep_sdf,
+  author    = {Jeong Joon Park and
+               Peter Florence and
+               Julian Straub and
+               Richard A. Newcombe and
+               Steven Lovegrove},
+  title     = {DeepSDF: Learning Continuous Signed Distance Functions for Shape Representation},
+  booktitle   = {Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2019},
+}
+
+@article{infogan,
+  author    = {Xi Chen and
+               Yan Duan and
+               Rein Houthooft and
+               John Schulman and
+               Ilya Sutskever and
+               Pieter Abbeel},
+  title     = {InfoGAN: Interpretable Representation Learning by Information Maximizing
+               Generative Adversarial Nets},
+  journal   = {NEURal Information Processing Systems (Neurips)},
+  year      = {2016},
+}
+
+@inproceedings{sitzmann2019deepvoxels,
+    author = {Sitzmann, Vincent
+                and Thies, Justus
+                and Heide, Felix
+                and Nie{\ss}ner, Matthias
+                and Wetzstein, Gordon
+                and Zollh{\"o}fer, Michael},
+    title = {DeepVoxels: Learning Persistent 3D Feature Embeddings},
+    booktitle = {Computer Vision and Pattern Recognition (CVPR)},
+    year={2019}
+}
+      
+@inproceedings{NavaneetK2019DIFFERMB,
+  title={DIFFER: Moving Beyond 3D Reconstruction with Differentiable Feature Rendering},
+  author={L. NavaneetK. and Priyanka Mandikal and Varun Jampani and R. Venkatesh Babu},
+  booktitle={Computer Vision and Pattern Recognition (CVPR) Workshops},
+  year={2019}
+}
+
+@inproceedings{platos_cave,
+  author    = {Philipp Henzler and
+               Niloy J. Mitra and
+               Tobias Ritschel},
+  title     = {Escaping Plato's Cave using Adversarial Training: 3D Shape From Unstructured
+               2D Image Collections},
+  booktitle = {International Conference on Computer Vision (ICCV)},
+  year      = {2019},
+}
+
+@inproceedings{opendr,
+  author={Loper, Matthew M. and Black, Michael J.},
+  title={OpenDR: An Approximate Differentiable Renderer},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2014},
+}
+
+@article{rendernet,
+  author    = {Thu Nguyen{-}Phuoc and
+               Chuan Li and
+               Stephen Balaban and
+               Yong{-}Liang Yang},
+  title     = {RenderNet: A deep convolutional network for differentiable rendering from 3D shapes},
+  journal   = {NEURal Information Processing Systems (Neurips)},
+  year      = {2018},
+}
+
+@inproceedings{tulsiani_ray_consistency,
+  author    = {Shubham Tulsiani and
+               Tinghui Zhou and
+               Alexei A. Efros and
+               Jitendra Malik},
+  title     = {Multi-view Supervision for Single-view Reconstruction via Differentiable Ray Consistency},
+  booktitle = {Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2017},
+}
+
+@inproceedings{Michalkiewicz_2019_iccv,
+  author = {Michalkiewicz, Mateusz and Pontes, Jhony K. and Jack, Dominic and Baktashmotlagh, Mahsa and Eriksson, Anders},
+  title = {Implicit Surface Representations As Layers in Neural Networks},
+  booktitle = {International Conference on Computer Vision (ICCV)},
+  year = {2019}
+}
+
+@inproceedings{Huang18eccv,
+  title={Deep Volumetric Video From Very Sparse Multi-View Performance Capture},
+  author={Zeng Huang and Tianye Li and Weikai Chen and Yajie Zhao and Jun Xing and Chloe LeGendre and Chongyang Ma and Linjie Luo and Hao Li},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2018}
+}
+
+@article{im_net,
+  author    = {Zhiqin Chen and
+               Hao Zhang},
+  title     = {Learning Implicit Fields for Generative Shape Modeling},
+  journal   = {Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2019},
+}
+
+@inproceedings{wang2020principles,
+    title={A First Principles Approach for Data-Efficient System Identification of Spring-Rod Systems via Differentiable Physics Engines},
+    author={Kun Wang and Mridul Aanjaneya and Kostas Bekris},
+    booktitle={arXiv},
+    year={2020},
+}
+
+@inproceedings{xu2019disn,
+    title={DISN: Deep Implicit Surface Network for High-quality Single-view 3D Reconstruction},
+    author={Qiangeng Xu and Weiyue Wang and Duygu Ceylan and Radomir Mech and Ulrich Neumann},
+    booktitle={NEURal Information Processing Systems (Neurips)},
+    year={2019},
+}
+
+@inproceedings{ed_smith_super_resolution,
+    title = {Multi-View Silhouette and Depth Decomposition for High Resolution 3D Object Representation},
+    author = {Smith, Edward and Fujimoto, Scott and Meger, David},
+    booktitle = {NEURal Information Processing Systems (Neurips)},
+    year = {2018},
+}
+
+@inproceedings{heiden2019interactive,
+    title={Interactive Differentiable Simulation},
+    author={Eric Heiden and David Millard and Hejia Zhang and Gaurav S. Sukhatme},
+    booktitle={arXiv},
+    year={2019},
+}
+
+@inproceedings{Heiden2019Real2SimTU,
+  title={Real2Sim Transfer using Differentiable Physics},
+  author={Eric Heiden and David E. Millard and Gaurav S. Sukhatme},
+  booktitle={arXiv},
+  year={2019}
+}
+
+@article{geometrics,
+  author    = {Edward J. Smith and
+               Scott Fujimoto and
+               Adriana Romero and
+               David Meger},
+  title     = {GEOMetrics: Exploiting Geometric Structure for Graph-Encoded Objects},
+  journal   = {International Conference on Machine Learning (ICML)},
+  year      = {2020},
+}
+
+@inproceedings{jatavallabhula2019kaolin,
+    title={Kaolin: A PyTorch Library for Accelerating 3D Deep Learning Research},
+    author={Krishna Murthy Jatavallabhula and Edward Smith and Jean-Francois Lafleche and Clement Fuji Tsang and Artem Rozantsev and Wenzheng Chen and Tommy Xiang and Rev Lebaredian and Sanja Fidler},
+    booktitle={arXiv},
+    year={2019},
+}
+
+@article{pytorch3d,
+  title={Accelerating 3D Deep Learning with PyTorch3D},
+  author={Ravi, Nikhila and Reizenstein, Jeremy and Novotny, David and Gordon, Taylor and Lo, Wan-Yen and Johnson, Justin and Gkioxari, Georgia},
+  journal={arXiv preprint arXiv:2007.08501},
+  year={2020}
+}
+
+@article{open3d,
+   author  = {Qian-Yi Zhou and Jaesik Park and Vladlen Koltun},
+   title   = {Open3D: A Modern Library for 3D Data Processing},
+   journal = {arXiv:1801.09847},
+   year    = {2018},
+}
+
+@article{ShapeNet,
+  title={ShapeNet: An information-rich 3d model repository},
+  author={Chang, Angel X and Funkhouser, Thomas and Guibas, Leonidas and Hanrahan, Pat and Huang, Qixing and Li, Zimo and Savarese, Silvio and Savva, Manolis and Song, Shuran and Su, Hao and others},
+  journal={arXiv preprint arXiv:1512.03012},
+  year={2015}
+}
+
+@Inbook{shape_from_shading,
+    author="Prados, E. and Faugeras, O.",
+    title="Shape From Shading",
+    bookTitle="Handbook of Mathematical Models in Computer Vision",
+    year="2006",
+    publisher="Springer US",
+    address="Boston, MA",
+    pages="375--388",
+}
+
+@inproceedings{kingma2015adam,
+  author    = {Diederik P. Kingma and
+               Jimmy Ba},
+  title     = {Adam: A Method for Stochastic Optimization},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2015},
+}
+
+@inproceedings{mildenhall2020nerf,
+    title={NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis},
+    author={Ben Mildenhall and Pratul P. Srinivasan and Matthew Tancik and Jonathan T. Barron and Ravi Ramamoorthi and Ren Ng},
+    booktitle={European Conference on Computer Vision (ECCV)},
+    year={2020},
+}
+
+@article{mildenhall2019llff,
+  title={Local Light Field Fusion: Practical View Synthesis with Prescriptive Sampling Guidelines},
+  author={Ben Mildenhall and Pratul P. Srinivasan and Rodrigo Ortiz-Cayon and Nima Khademi Kalantari and Ravi Ramamoorthi and Ren Ng and Abhishek Kar},
+  journal={ACM Transactions on Graphics (TOG)},
+  year={2019}
+}
+
+@inproceedings{schoenberger2016sfm,
+    author={Sch\"{o}nberger, Johannes Lutz and Frahm, Jan-Michael},
+    title={{Structure-from-Motion Revisited}},
+    booktitle={Computer Vision and Pattern Recognition (CVPR)},
+    year={2016},
+}
+
+@article{griewank_ad,
+  author = {Griewank, Andreas and Walther, Andrea},
+  title = {Introduction to Automatic Differentiation},
+  journal = {PAMM},
+  volume = {2},
+  number = {1},
+  pages = {45-49},
+  year = {2003}
+}
+
+@book{pbrt,
+  author = {Pharr, Matt and Jakob, Wenzel and Humphreys, Greg},
+  title = {Physically Based Rendering: From Theory to Implementation},
+  year = {2016},
+  isbn = {0128006455},
+  publisher = {Morgan Kaufmann Publishers Inc.},
+}
+  
+@article{reinforce,
+  author = {Williams, Ronald J.},
+  title = {Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning},
+  year = {1992},
+  publisher = {Kluwer Academic Publishers},
+  volume = {8},
+  number = {3–4},
+  issn = {0885-6125},
+  pages = {229–256},
+  journal = {Machine Learning},
+  numpages = {28},
+}
+  
+@inproceedings{rezende2016unsupervised,
+  title={Unsupervised learning of 3d structure from images},
+  author={Rezende, Danilo Jimenez and Eslami, SM Ali and Mohamed, Shakir and Battaglia, Peter and Jaderberg, Max and Heess, Nicolas},
+  booktitle={NEURal Information Processing Systems (Neurips)},
+  year={2016}
+}
+
+@inproceedings{kim2019deep,
+  title={Deep fluids: A generative network for parameterized fluid simulations},
+  author={Kim, Byungsoo and Azevedo, Vinicius C and Thuerey, Nils and Kim, Theodore and Gross, Markus and Solenthaler, Barbara},
+  booktitle={Computer Graphics Forum},
+  volume={38},
+  number={2},
+  pages={59--70},
+  year={2019},
+}
+
+@article{pineau2020improving,
+  title={Improving Reproducibility in Machine Learning Research (A Report from the NeurIPS 2019 Reproducibility Program)},
+  author={Pineau, Joelle and Vincent-Lamarre, Philippe and Sinha, Koustuv and Larivi{\`e}re, Vincent and Beygelzimer, Alina and d'Alch{\'e}-Buc, Florence and Fox, Emily and Larochelle, Hugo},
+  journal={arXiv preprint arXiv:2003.12206},
+  year={2020}
+}
+
+@inproceedings{geilinger2020add,
+    title={ADD: Analytically Differentiable Dynamics for Multi-Body Systems with Frictional Contact},
+    author={Moritz Geilinger and David Hahn and Jonas Zehnder and Moritz Bächer and Bernhard Thomaszewski and Stelian Coros},
+    booktitle={arXiv},
+    year={2020},
+}
+
+@inproceedings{bell2005particle,
+  title={Particle-based simulation of granular materials},
+  author={Bell, Nathan and Yu, Yizhou and Mucha, Peter J},
+  booktitle={Proceedings of the 2005 ACM SIGGRAPH/Eurographics symposium on Computer animation},
+  pages={77--86},
+  year={2005}
+}
+
+@article{miles-flex,
+  title={Unified particle physics for real-time applications},
+  author={Macklin, Miles and M{\"u}ller, Matthias and Chentanez, Nuttapong and Kim, Tae-Yong},
+  journal={ACM Transactions on Graphics (TOG)},
+  volume={33},
+  number={4},
+  pages={1--12},
+  year={2014},
+}
+
+% Refs suggested by Neurips reviewers
+
+% ECCV 2002 paper (sys id from video)
+@inproceedings{eccv-2002-physical-params-from-video,
+  title={Computing the physical parameters of rigid-body motion from video},
+  author={Bhat, Kiran S and Seitz, Steven M and Popovi{\'c}, Jovan and Khosla, Pradeep K},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2002},
+}
+
+@inproceedings{estimating-cloth-params-from-video,
+  title={Estimating cloth simulation parameters from video},
+  author={Bhat, Kiran S and Twigg, Christopher D and Hodgins, Jessica K and Khosla, Pradeep and Popovic, Zoran and Seitz, Steven M},
+  booktitle={ACM SIGGRAPH/Eurographics Symposium on Computer Animation},
+  year={2003},
+}
+
+@article{liu2005learning,
+  title={Learning physics-based motion style with nonlinear inverse optimization},
+  author={Liu, C Karen and Hertzmann, Aaron and Popovi{\'c}, Zoran},
+  journal={ACM Transactions on Graphics (TOG)},
+  volume={24},
+  number={3},
+  pages={1071--1081},
+  year={2005},
+  publisher={ACM New York, NY, USA}
+}
+
+@inproceedings{estimating-contact-dynamics,
+  title={Estimating contact dynamics},
+  author={Brubaker, Marcus A and Sigal, Leonid and Fleet, David J},
+  booktitle={International Conference on Computer Vision (ICCV)},
+  year={2009}
+}
+
+@inproceedings{neuroanimator,
+  title={Neuroanimator: Fast neural network emulation and control of physics-based models},
+  author={Grzeszczuk, Radek and Terzopoulos, Demetri and Hinton, Geoffrey},
+  booktitle={Proceedings of the 25th annual conference on Computer graphics and interactive techniques},
+  year={1998}
+}
+
+</script>
+<script src="lib/blazy.js"></script>
+<script>
+  var bLazy = new Blazy({
+    success: function(){
+      updateCounter();
+    }
+  });
+  var imageLoaded = 0;
+  function updateCounter() {
+    imageLoaded++;
+    console.log("blazy image loaded: "+imageLoaded);
+  }
+</script>
