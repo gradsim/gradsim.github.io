@@ -1,4 +1,4 @@
-# Learning Latent Plans from Play
+# gradSim
 
 Markdown from https://github.com/planetrl/planetrl.github.io
 
