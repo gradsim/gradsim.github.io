@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  padding: 20px;
+  padding: 0;
   overflow-x: hidden;
 }
 
@@ -58,7 +58,7 @@ body {
   transform: translateX(-50%);
 }
 
-.cover div:after {
+/*.cover div:after {
   content: '';
   position: absolute;
   left: 2.1em;
@@ -71,7 +71,7 @@ body {
   -moz-transform: rotate(45deg);
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
-}
+}*/
 
 .figure {
   text-align: center;
@@ -208,10 +208,10 @@ dt-article figcaption b {
     justify-content: center;
     z-index: 1000;
     padding-top: 16px;
-    position: absolute;
+    position: relative;
 }
 
-.button {
+.ourbutton {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -228,7 +228,11 @@ dt-article figcaption b {
     user-select: none;
 }
 
-.button:hover {
+.ourbutton:hover {
     /*background-color: rgba(255, 255, 255, 0.17);*/
     background-color:#5cbf2a;
+}
+
+.ourbutton:after {
+  background-color: darken(#5cbf2a, 20%);
 }

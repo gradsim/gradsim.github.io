@@ -47,7 +47,7 @@ ______
 
 ## 2. gradSim: A unified differentiable simulation engine
 
-Typically, physics estimation and rendering have been treated as disjoint, mutually exclusive tasks. In this work, we take on a unified view of \emph{simulation} in general, to compose physics estimation \emph{and} rendering. Formally, simulation is a function
+Typically, physics estimation and rendering have been treated as disjoint, mutually exclusive tasks. In this work, we take on a unified view of *simulation* in general, to compose physics estimation *and* rendering. Formally, simulation is a function
 
 $\text{Sim}: \mathbb{R}^P \times \left[0, 1\right] \mapsto \mathbb{R}^H \times \mathbb{R}^W; \text{Sim}(\mathbf{p}, t) = \mathcal{I}$.
 
@@ -207,7 +207,7 @@ To investigate whether the gradients computed by gradSim are meaningful for visi
 
 #### 3.2.1. Deformable solids
 
-The first example (*control-walker*) involves a 2D walker model. Our goal is to train a neural network (NN) control policy to actuate the walker to reach a target pose on the right-hand side of an image. Our NN consists of one fully connected layer and a $\textnormal{tanh}()$ activation. The network input is a set of $8$ time-varying sinusoidal signals, and the output is a scalar activation value per-tetrahedron. gradSim is able to \emph{solve} this environment within three iterations of gradient descent, by minimizing a pixelwise MSE between the last frame of the rendered video and the goal image as shown in Fig. 7 (lower left), and more descriptively in Fig. 8.
+The first example (*control-walker*) involves a 2D walker model. Our goal is to train a neural network (NN) control policy to actuate the walker to reach a target pose on the right-hand side of an image. Our NN consists of one fully connected layer and a $\textnormal{tanh}()$ activation. The network input is a set of $8$ time-varying sinusoidal signals, and the output is a scalar activation value per-tetrahedron. gradSim is able to *solve* this environment within three iterations of gradient descent, by minimizing a pixelwise MSE between the last frame of the rendered video and the goal image as shown in Fig. 7 (lower left), and more descriptively in Fig. 8.
 
 <div class="figure">
 	<img class="b-lazy" width="23%" src="assets/gif/walker-iter0.gif" alt="The (randomly initialized) walker wiggles in-place during the first iteration."></img>
