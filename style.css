@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  padding: 0;
+  padding: 20px;
   overflow-x: hidden;
 }
 
@@ -175,4 +175,60 @@ dt-article figcaption b {
     opacity: 0.4;
     bottom: -30px;
   }
+}
+
+.myButton {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color:#44c767;
+  border-radius:28px;
+  border:1px solid #18ab29;
+  display:inline-block;
+  cursor:pointer;
+  color:#ffffff;
+  font-family:Arial;
+  font-size:17px;
+  padding:16px 31px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #2f6627;
+  position:absolute;
+}
+.myButton:hover {
+  background-color:#5cbf2a;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.btn-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    padding-top: 16px;
+    position: absolute;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 60px;
+    border-radius: 10px;
+    /*background-color: #ffffff1f;*/
+    background-color:#44c767;
+    border: solid 2px white;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    margin: 0 20px;
+    user-select: none;
+}
+
+.button:hover {
+    /*background-color: rgba(255, 255, 255, 0.17);*/
+    background-color:#5cbf2a;
 }

@@ -37,7 +37,13 @@
 <div class="cover">
   <h1>gradSim: Differentiable simulation for<br>system identification and visuomotor control</h1>
   <img src="assets/img/walker.gif" width="70%"></img>
-  <div class="hint unselectable">scroll down</div>
+  <!-- <div class="hint unselectable">scroll down</div> -->
+</div>
+  <!-- <a href="#" class="myButton">green</a> -->
+
+<div class='btn-container'>
+  <div class='button register' onclick="window.open('https://docs.google.com/forms/d/10MTPsV8BzL_doKnbnSuuN8fM3puAV15SJoobSp2EXXo/viewform')">Register Now</div>
+  <div onclick='window.location="#about"' class='button more-info'>More info ↓</div>
 </div>
 
 <dt-article id="dtbody">
@@ -107,10 +113,13 @@
   </div>
   <div class="date">
     <div class="month">Download</div>
-    <div class="year" style="color: #0000FF;"><a href="https://openreview.net/forum?id=c_E8kFWfhp0" target="_blank">PDF</a></div> </div>
+    <div class="year" style="color: #0000FF;"><a href="https://openreview.net/forum?id=c_E8kFWfhp0" target="_blank">PDF</a></div>
+  </div>
 </div>
 </dt-byline>
 </dt-byline>
+</dt-article>
+</body>
 <h2>Abstract</h2>
 <p>We consider the problem of estimating an object's physical properties such as mass, friction, and elasticity directly from video sequences. Such a system identification problem is fundamentally ill-posed due to the loss of information during image formation. Current solutions require precise 3D labels which are labor-intensive to gather, and infeasible to create for many systems such as deformable solids or cloth. We present gradSim, a framework that overcomes the dependence on 3D supervision by leveraging differentiable multiphysics simulation and differentiable rendering to jointly model the evolution of scene dynamics and image formation. This novel combination enables backpropagation from pixels in a video sequence through to the underlying physical attributes that generated them. Moreover, our unified computation graph -- spanning from the dynamics and through the rendering process -- enables learning in challenging visuomotor control tasks, without relying on state-based (3D) supervision, while obtaining performance competitive to or better than techniques that rely on precise 3D labels.</p>
 <hr>
